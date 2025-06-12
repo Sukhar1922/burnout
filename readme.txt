@@ -11,11 +11,11 @@
         venv/scripts/activate
     1. Для Linux:
         source venv/bin/activate
-    2. cd Yashkino
+    2. cd server
     3. Для Win:
         python manage.py runserver
     3. Для Linux:
-        python3 manage.py runserver
+        python3.12 manage.py runserver
 
 Вероятно, чтобы работало из вне, после runserver указать 0.0.0.0:8000
 Это временное решение
