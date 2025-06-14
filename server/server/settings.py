@@ -28,7 +28,12 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*'] # Потом надо сделать тут хорошо
 
-
+CSRF_TRUSTED_ORIGINS = [
+    'https://*.127.0.0.1',
+    'http://*.127.0.0.1',
+    'https://*.kgu.red-atom.ru',
+    'http://*.kgu.red-atom.ru',
+]
 # Application definition
 
 INSTALLED_APPS = [
