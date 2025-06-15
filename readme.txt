@@ -21,9 +21,13 @@
 Это временное решение
 
 Админка:
-Адрес - http://адрес:порт/admin
+Адрес - http://kgu.red-atom.ru/admin
 Логин - admin
 Пароль - admin
+
+Интересные адреса на сервере:
+https://kgu.red-atom.ru/api/
+https://kgu.red-atom.ru/admin/
 
 API:
     GET:
