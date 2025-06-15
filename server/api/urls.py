@@ -21,4 +21,5 @@ from . import views
 
 urlpatterns = [
     path('', views.test),
+    path('questions_368c231b7c9a3d506cef5a936c83d92f068179d849db19ac2608ba288c7c1c56', views.GETquestions),
 ]
