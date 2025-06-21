@@ -11,7 +11,7 @@ def test(request):
 
 def GETquestions(request):
     if request.method == 'GET':
-        data = list(Questions.objects.values())
+        data = list(Questions.objects.values('id', 'Name_Question'))
         return JsonResponse(data, safe=False)
 
     return HttpResponseNotAllowed(['GET'])
