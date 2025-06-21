@@ -7,6 +7,7 @@ class People(models.Model):
     Surname = models.CharField(max_length=32, null=False)
     Partonymic = models.CharField(max_length=32, null=True)
     Email = models.CharField(max_length=64, null=False)
+    Birthday = models.DateField(null=True, blank=True)
     TG_ID = models.CharField(max_length=64, null=False)
 
     def __str__(self):
@@ -23,6 +24,9 @@ class Phase_VOLTAGE(models.Model):
     Symptom4 = models.IntegerField(null=True)
     SymptomSum = models.IntegerField(null=True)
 
+    def __str__(self):
+        return f'{self.People_ID.TG_ID} от {self.Date_Record}'
+
 
 class Phase_RESISTANCE(models.Model):
     id = models.AutoField(primary_key=True)
@@ -33,6 +37,9 @@ class Phase_RESISTANCE(models.Model):
     Symptom3 = models.IntegerField(null=True)
     Symptom4 = models.IntegerField(null=True)
     SymptomSum = models.IntegerField(null=True)
+
+    def __str__(self):
+        return f'{self.People_ID.TG_ID} от {self.Date_Record}'
 
 
 class Phase_EXHAUSTION(models.Model):
@@ -45,6 +52,9 @@ class Phase_EXHAUSTION(models.Model):
     Symptom4 = models.IntegerField(null=True)
     SymptomSum = models.IntegerField(null=True)
 
+    def __str__(self):
+        return f'{self.People_ID.TG_ID} от {self.Date_Record}'
+
 
 class Test_Burnout(models.Model):
     id = models.AutoField(primary_key=True)
@@ -54,6 +64,9 @@ class Test_Burnout(models.Model):
     RESISTANCE = models.ForeignKey(to=Phase_RESISTANCE, on_delete=models.CASCADE, related_name='Burnout')
     EXHAUSTION = models.ForeignKey(to=Phase_EXHAUSTION, on_delete=models.CASCADE, related_name='Burnout')
     Summary_Value = models.IntegerField()
+
+    def __str__(self):
+        return f'{self.People_ID.TG_ID} от {self.Date_Record}'
 
 
 class Questions(models.Model):
