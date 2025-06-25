@@ -1,6 +1,7 @@
 ### Требования
 - git
 - python 3.12 (тестировалось на python 3.12.10)
+- PosgreSQL (тестировалось на 17.5)
 
 ### Установка 
     1. python -m venv venv
@@ -9,6 +10,9 @@
     2. Для Linux:
         source venv/bin/activate
     3. pip install -r requirements.txt
+    4. cd server
+    5. cp .env.example .env
+    6. Установить свою конфигурацию для бд на postgreSQL с помощью vim .env
 
 ### Запуск
     1. Для Win:
