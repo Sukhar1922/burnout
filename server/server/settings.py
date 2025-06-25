@@ -73,6 +73,13 @@ TEMPLATES = [
     },
 ]
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.locmem.LocMemCache",
+        "LOCATION": "AppMemCache",
+    }
+}
+
 WSGI_APPLICATION = 'server.wsgi.application'
 
 
