@@ -46,3 +46,14 @@ def __executeSQL(script):
         return {'result': 'success'}
     except Exception:
         return {'result': str(Exception)}
+
+
+def POSTregistration(request):
+    if request.method == 'POST':
+        data = {}
+        for key, value in request.POST.items():
+            data[key] = value
+        # print(data)
+        return JsonResponse(data, safe=False)
+
+    return HttpResponseNotAllowed(['POST'])
