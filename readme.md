@@ -27,13 +27,13 @@
 Если запускать на локальной машине, то ip адрес и порт указывать не нужно
 
 ### Админка
-- Адрес - http://kgu.red-atom.ru/admin
+- Адрес - http://kgu.red-atom.ru/django/admin
 - Логин - admin
 - Пароль - admin
 
 ### Интересные адреса на сервере
-- https://kgu.red-atom.ru/api/
-- https://kgu.red-atom.ru/admin/
+- https://kgu.red-atom.ru/django/api/
+- https://kgu.red-atom.ru/django/admin/
 
 ### API
     GET:
