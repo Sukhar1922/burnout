@@ -1,10 +1,12 @@
 from django.shortcuts import render
 from django.http import JsonResponse, HttpResponseNotAllowed
 from django.db import connection
+from django.core.cache import cache
 
 from .models import Questions
+import json
+# from BurnoutLib.BurnoutLib import HandlerQuestions
 
-from django.core.cache import cache
 # Create your views here.
 
 def test(request):
@@ -14,11 +16,11 @@ def test(request):
 def GETquestions(request):
     if request.method == 'GET':
         data = cache.get('questions_cache')
-        print(f'Кэш {data}')
+        # print(f'Кэш {data}')
         if data is None:
             data = list(Questions.objects.values('id', 'Name_Question'))
             cache.set('questions_cache', data, timeout=None)
-            print('Создан кэш для таблицы вопросов')
+            # print('Создан кэш для таблицы вопросов')
         return JsonResponse(data, safe=False)
 
     return HttpResponseNotAllowed(['GET'])
@@ -61,10 +63,9 @@ def POSTregistration(request):
 
 def POSTanswers(request):
     if request.method == 'POST':
-        data = {}
-        for key, value in request.POST.items():
-            data[key] = value
-        # print(data)
-        return JsonResponse(data, safe=False)
+        data = json.loads(request.body)
+        print(data['TG_ID'])
+        userAnswers = data['Answers']
+        return JsonResponse(userAnswers, safe=False)
 
     return HttpResponseNotAllowed(['POST'])
