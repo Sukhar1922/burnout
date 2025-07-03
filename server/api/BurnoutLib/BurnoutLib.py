@@ -1,4 +1,7 @@
 import json
+import os
+
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 class QuestionPrototype:
     def __init__(self, id: int) -> None:
@@ -213,7 +216,8 @@ class HandlerQuestions:
         self.PhaseExhaustion = PhaseExhaustion()
 
         # Вызов json кеша в котором хранятся правильные ответы из БД
-        with open('TruePointsAnswersQuestions.json', 'r', encoding='utf-8') as file:
+        json_path = os.path.join(BASE_DIR, "TruePointsAnswersQuestions.json")
+        with open(json_path, 'r', encoding='utf-8') as file:
             data = json.load(file)["questions"]
 
         # Настройка обработчика. Загрузка правильных ответов и баллов
