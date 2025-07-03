@@ -60,11 +60,22 @@ def __executeSQL(script):
 
 def POSTregistration(request):
     if request.method == 'POST':
-        data = {}
-        for key, value in request.POST.items():
-            data[key] = value
-        # print(data)
-        return JsonResponse(data, safe=False)
+        result = {'status': 'success'}
+        data = json.loads(request.body)
+        TG_ID = data['TG_ID']
+        people = People.objects.filter(TG_ID=TG_ID)
+        if len(people) == 0:
+            newPeople = People.objects.create(
+                Name=data['Name'],
+                Surname=data['Surname'],
+                Patronymic=data['Patronymic'],
+                Email=data['Email'],
+                Birthday=data['Birthday'],
+                TG_ID=TG_ID
+            )
+        else:
+            result['status'] = 'failure'
+        return JsonResponse(result, safe=False)
 
     return HttpResponseNotAllowed(['POST'])
 

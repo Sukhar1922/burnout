@@ -5,7 +5,7 @@ class People(models.Model):
     id = models.AutoField(primary_key=True)
     Name = models.CharField(max_length=32, null=False)
     Surname = models.CharField(max_length=32, null=False)
-    Partonymic = models.CharField(max_length=32, null=True)
+    Patronymic = models.CharField(max_length=32, null=True)
     Email = models.CharField(max_length=64, null=False)
     Birthday = models.DateField(null=True, blank=True)
     TG_ID = models.CharField(max_length=64, null=False)
