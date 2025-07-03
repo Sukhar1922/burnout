@@ -69,42 +69,44 @@ def POSTregistration(request):
     return HttpResponseNotAllowed(['POST'])
 
 
-def __addResultsToDB(people, testResults):
+def __addResultsToDB(people, hq):
     with transaction.atomic():
-        voltage = testResults[:4]
-        resistance = testResults[4:8]
-        exhaustion = testResults[8:]
+        voltage = hq.PhaseVoltage
+        resistance = hq.PhaseResistance
+        exhaustion = hq.PhaseExhaustion
+
+        print(f'voltage.points() {voltage.points}')
 
         phaseVoltage = Phase_VOLTAGE.objects.create(
             People_ID=people,
-            Symptom1=voltage[0],
-            Symptom2=voltage[1],
-            Symptom3=voltage[2],
-            Symptom4=voltage[3],
-            SymptomSum=sum(voltage)
+            Symptom1=voltage.Symptom(1).points,
+            Symptom2=voltage.Symptom(2).points,
+            Symptom3=voltage.Symptom(3).points,
+            Symptom4=voltage.Symptom(4).points,
+            SymptomSum=voltage.points
         )
         phaseResistance = Phase_RESISTANCE.objects.create(
             People_ID=people,
-            Symptom1=resistance[0],
-            Symptom2=resistance[1],
-            Symptom3=resistance[2],
-            Symptom4=resistance[3],
-            SymptomSum=sum(resistance)
+            Symptom1=resistance.Symptom(1).points,
+            Symptom2=resistance.Symptom(2).points,
+            Symptom3=resistance.Symptom(3).points,
+            Symptom4=resistance.Symptom(4).points,
+            SymptomSum=resistance.points
         )
         phaseExhaustion = Phase_EXHAUSTION.objects.create(
             People_ID=people,
-            Symptom1=exhaustion[0],
-            Symptom2=exhaustion[1],
-            Symptom3=exhaustion[2],
-            Symptom4=exhaustion[3],
-            SymptomSum=sum(exhaustion)
+            Symptom1=exhaustion.Symptom(1).points,
+            Symptom2=exhaustion.Symptom(2).points,
+            Symptom3=exhaustion.Symptom(3).points,
+            Symptom4=exhaustion.Symptom(4).points,
+            SymptomSum=exhaustion.points
         )
         testBurnout = Test_Burnout.objects.create(
             People_ID=people,
             VOLTAGE=phaseVoltage,
             RESISTANCE=phaseResistance,
             EXHAUSTION=phaseExhaustion,
-            Summary_Value=sum(testResults)
+            Summary_Value=hq.points
         )
         return (phaseVoltage, phaseResistance, phaseExhaustion, testBurnout)
 
@@ -122,19 +124,22 @@ def POSTanswers(request):
             t1 = time.time()
             hq = HandlerQuestions()
             testResults = hq.handle_answers(answers)
-            __addResultsToDB(people[0], testResults)
+            __addResultsToDB(people[0], hq)
             resultTime = time.time() - t1
 
             result['runTime'] = f'{resultTime:.5f} sec'
             result['testResults'] = testResults
+            result['status'] = 'inserted'
         elif len(people) == 0:
             t1 = time.time()
             hq = HandlerQuestions()
             testResults = hq.handle_answers(answers)
+            print(testResults)
             resultTime = time.time() - t1
 
             result['runTime'] = f'{resultTime:.5f} sec'
             result['testResults'] = testResults
+            result['status'] = 'DB has not changed'
         else:
             result['status'] = f'DB has more then one {TG_ID}'
         return JsonResponse(result, safe=False)

@@ -1,5 +1,6 @@
 import json
 import os
+from multiprocessing.dummy import shutdown
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -38,6 +39,7 @@ class SymptomPrototype:
 
         self._points = 0
         self._keys = None
+        self._status = None
         self._questions = None
         self.DictTrueAnswers = None
         self.symptomNumber = number
@@ -54,7 +56,7 @@ class SymptomPrototype:
         return self._keys
 
     @property
-    def points(self) -> int:
+    def points(self) -> int | None:
         """
             Самостоятельно просуммирует баллы в своём объекте и вернёт их
 
@@ -62,8 +64,11 @@ class SymptomPrototype:
             :rtype: int
         """
 
-        self._points = sum(list(map(lambda x: x.userPoints, self.questions())))
-        return self._points
+        if True in list(map(lambda x: x.userPoints is None, self.questions())):
+            return None
+        else:
+            self._points = sum(list(map(lambda x: x.userPoints, self.questions())))
+            return self._points
 
     @points.setter
     def points(self, value: int) -> None:
@@ -75,6 +80,29 @@ class SymptomPrototype:
         """
 
         self._points = value
+
+    @property
+    def status(self) -> str:
+        """
+            Определяет по баллам статус симптома и возвращает название статуса
+
+            :return: Возвращает название статуса
+            :rtype: str
+        """
+
+        if self.points is not None:
+            if self.points <= 9:
+                self._status = "не сложившийся симптом"
+            elif 10 <= self.points <= 15:
+                self._status = "складывающийся симптом"
+            else:
+                if self.points >= 20:
+                    self._status = "сложившийся (доминирующий симптом)"
+                else:
+                    self._status = "сложившийся"
+            return self._status
+        else:
+            return None
 
     def Question(self, number: int) -> QuestionPrototype:
         """
@@ -123,6 +151,7 @@ class PhasePrototype:
         """
 
         self._symptoms_points_summary = None
+        self._status = None
         self._symptoms = [SymptomPrototype(1), SymptomPrototype(2), SymptomPrototype(3), SymptomPrototype(4)]
 
     def Symptom(self, number: int) -> SymptomPrototype:
@@ -144,16 +173,38 @@ class PhasePrototype:
             return self._symptoms[number - 1]
 
     @property
-    def points(self) -> int:
+    def points(self) -> int | None:
         """
             Самостоятельно просуммирует баллы в своём объекте и вернёт их
 
             :return: Возвращает сумму баллов отдельной фазы выгорания
             :rtype: int
         """
+        if True in list(map(lambda x: x.points is None, self.symptoms())):
+            return None
+        else:
+            self._symptoms_points_summary = sum(list(map(lambda x: x.points, self.symptoms())))
+            return self._symptoms_points_summary
 
-        self._symptoms_points_summary = sum(list(map(lambda x: x.points, self.symptoms())))
-        return self._symptoms_points_summary
+    @property
+    def status(self) -> str:
+        """
+            Определяет по баллам статус симптома и возвращает название статуса
+
+            :return: Возвращает название статуса
+            :rtype: str
+        """
+
+        if self.points is not None:
+            if self.points <= 36:
+                self._status = "фаза не сформировалась"
+            elif 37 <= self.points <= 60:
+                self._status = "фаза в стадии формирования"
+            else:
+                self._status = "сформировавшаяся фаза"
+            return self._status
+        else:
+            return None
 
     def symptoms(self) -> list[SymptomPrototype]:
         """
@@ -255,7 +306,7 @@ class HandlerQuestions:
                             symptom.Question(item_data["id"]).trueAnswer = 0
                             symptom.Question(item_data["id"]).truePoints = item_data["points_no"]
 
-    def handle_answers(self, data: list[dict[int, int]]) -> list[int]:
+    def handle_answers(self, data: list[dict[int, int]]) -> list[int, str, list[int, str]]:
         """
             Данный метод служит для обработки пользовательских ответов. Возвращает список баллов для каждого симптома
 
@@ -264,7 +315,7 @@ class HandlerQuestions:
             :param data: Список словарей с пользовательскими данными [id - номер вопроса, answer - пользовательский ответ]
             :type data: list[dict[int, int]]
             :return: Список суммы баллов каждого симптома
-            :rtype: list[int]
+            :rtype: list
         """
 
         for item_data in data:
@@ -298,15 +349,8 @@ class HandlerQuestions:
                             symptom.Question(item_data["id"]).userAnswer = item_data["answer"]
                             symptom.Question(item_data["id"]).userPoints = 0
 
-        # Сборка суммы баллов каждого симптома в списке
-        list_symptoms = []
-        for i in range(1, len(self.PhaseVoltage.symptoms()) + 1):
-            list_symptoms.append(self.PhaseVoltage.Symptom(i).points)
-        for i in range(1, len(self.PhaseResistance.symptoms()) + 1):
-            list_symptoms.append(self.PhaseResistance.Symptom(i).points)
-        for i in range(1, len(self.PhaseExhaustion.symptoms()) + 1):
-            list_symptoms.append(self.PhaseExhaustion.Symptom(i).points)
-        return list_symptoms
+        # Сборка всей статистики в списке
+        return self.getStatistics()
 
     @property
     def points(self) -> int:
@@ -320,6 +364,20 @@ class HandlerQuestions:
         self._summary = self.PhaseVoltage.points + self.PhaseResistance.points + self.PhaseExhaustion.points
         return self._summary
 
+    def getStatistics(self) -> list[int, str, list[int, str]]:
+        """
+            :return: Возвращает общую статистику в списке
+            :rtype: list
+        """
+
+        list_phases = []
+        for phase in [self.PhaseVoltage, self.PhaseResistance, self.PhaseExhaustion]:
+            list_symptoms = []
+            for i in range(1, len(phase.symptoms()) + 1):
+                list_symptoms.append([phase.Symptom(i).points, phase.Symptom(i).status])
+            list_data_phase = [phase.points, phase.status, list_symptoms]
+            list_phases.append(list_data_phase)
+        return list_phases
 
 if __name__ == "__main__":
     from test import test_print_question, test_summary_answers, generate_test_list_answers
@@ -345,3 +403,6 @@ if __name__ == "__main__":
 
     # test 3: Сумма ответов
     test_summary_answers(hq)
+
+    # Вывод статистки в консоль
+    print(hq.getStatistics())

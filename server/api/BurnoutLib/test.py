@@ -4,6 +4,10 @@ def test_print_question(object_hq, Phase_id, Symptom_id, Question_id):
     if Phase_id == 1:
         print("Фаза: PhaseVoltage")
         print()
+        print("Статус фазы:", object_hq.PhaseVoltage.status)
+        print(f"Статус симптома №{object_hq.PhaseVoltage.Symptom(Symptom_id).symptomNumber}:",
+              object_hq.PhaseVoltage.Symptom(Symptom_id).status)
+        print()
         print("ID:", object_hq.PhaseVoltage.Symptom(Symptom_id).Question(Question_id).id)
         print("Вопрос:", object_hq.PhaseVoltage.Symptom(Symptom_id).Question(Question_id).text)
         print("Правильный ответ:", object_hq.PhaseVoltage.Symptom(Symptom_id).Question(Question_id).trueAnswer)
@@ -17,6 +21,10 @@ def test_print_question(object_hq, Phase_id, Symptom_id, Question_id):
     elif Phase_id == 2:
         print("Фаза: PhaseResistance")
         print()
+        print("Статус фазы:", object_hq.PhaseResistance.status)
+        print(f"Статус симптома №{object_hq.PhaseResistance.Symptom(Symptom_id).symptomNumber}:",
+              object_hq.PhaseResistance.Symptom(Symptom_id).status)
+        print()
         print("ID:", object_hq.PhaseResistance.Symptom(Symptom_id).Question(Question_id).id)
         print("Вопрос:", object_hq.PhaseResistance.Symptom(Symptom_id).Question(Question_id).text)
         print("Правильный ответ:", object_hq.PhaseResistance.Symptom(Symptom_id).Question(Question_id).trueAnswer)
@@ -29,6 +37,10 @@ def test_print_question(object_hq, Phase_id, Symptom_id, Question_id):
               object_hq.PhaseResistance.Symptom(Symptom_id).Question(Question_id).userPoints)
     elif Phase_id == 3:
         print("Фаза: PhaseExhaustion")
+        print()
+        print("Статус фазы:", object_hq.PhaseExhaustion.status)
+        print(f"Статус симптома №{object_hq.PhaseExhaustion.Symptom(Symptom_id).symptomNumber}:",
+              object_hq.PhaseExhaustion.Symptom(Symptom_id).status)
         print()
         print("ID:", object_hq.PhaseExhaustion.Symptom(Symptom_id).Question(Question_id).id)
         print("Вопрос:", object_hq.PhaseExhaustion.Symptom(Symptom_id).Question(Question_id).text)
