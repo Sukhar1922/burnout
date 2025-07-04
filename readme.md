@@ -44,6 +44,9 @@
             Нет параметров.
             Служеюное API для заполнения таблицы вопросов, если внутри функции fillQuestions flag = True
             Возвращает результат обновления (Удачно, неудачно, нет разрешения)
+        api/statistics_26a73614cf8dd8f7aeffec47fef1b6201896ece31e52a0c706ad5b7513f7851a:
+            Параметр: TG_ID
+            Возвращает все результаты тестов [[{time:timestamp}, [результаты]], [...], ...]
     POST:
         api/registration_8d6238094a7742ac22fedb3a180bc590d35f5ea70b8a262cc0bd976349b6181d:
             Параметры регистрации Name, Surname, Partonymic, Email, Birthday, TG_ID

@@ -25,4 +25,5 @@ urlpatterns = [
     path('fill_table_808b0abd590b48de048dfef7abadcd06410a24c9f9619a05aef83a9eb30ad765', views.fillQuestions),
     path('registration_8d6238094a7742ac22fedb3a180bc590d35f5ea70b8a262cc0bd976349b6181d', views.POSTregistration),
     path('answers_d4266fadaf6b4d8d557160643324a1d9470a5dc0ad973784f553b6918fc4a619', views.POSTanswers),
+    path('statistics_26a73614cf8dd8f7aeffec47fef1b6201896ece31e52a0c706ad5b7513f7851a', views.GETstatistics),
 ]

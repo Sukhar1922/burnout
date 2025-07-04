@@ -254,6 +254,57 @@ class PhaseExhaustion(PhasePrototype):
         self.Symptom(3).keys = [11, 23, 35, 47, 59, 71, 83]
         self.Symptom(4).keys = [12, 24, 36, 48, 60, 72, 84]
 
+
+def getFakeStatistics(fakeList_symptoms_points: list[int]) -> list[list[int, str, list[int, str]]]:
+    """
+        Данная функция нужна для вывода имитационной статистики. Например, мы хотим вернуть общую статистику,
+        но так вышло что данные сохранились только в БД. Для этого на вход отправляются 12 значений каждого симптома
+        и на основе этих данных создаётся повторная статистка, идентичная оригиналу от первого обращения
+        со стороны класса HandlerQuestions. Все значения внутри данной функции являются сторонними и
+        записаны в объекты классов не будут.
+
+        **Правила использования:**
+
+        :param fakeList_symptoms_points: Список баллов каждого симптома в соответствии с иерархией
+        :type fakeList_symptoms_points: list[int]
+        :return: Список статистики каждой фазы и их симптомов
+        :rtype: list[list[int, str, list[int, str]]]
+    """
+
+    fakeList_phases = []
+    for phase in [fakeList_symptoms_points[0:4], fakeList_symptoms_points[4:8], fakeList_symptoms_points[8:12]]:
+        phasePoints = sum(phase)
+
+        # Определение статуса фазы
+        if phasePoints <= 36:
+            phaseStatus = "фаза не сформировалась"
+        elif 37 <= phasePoints <= 60:
+            phaseStatus = "фаза в стадии формирования"
+        else:
+            phaseStatus = "сформировавшаяся фаза"
+
+        fakeList_symptoms = []
+        for symptomPoints in phase:
+
+            # Определение статуса симптома
+            if symptomPoints <= 9:
+                symptomStatus = "не сложившийся симптом"
+            elif 10 <= symptomPoints <= 15:
+                symptomStatus = "складывающийся симптом"
+            else:
+                if symptomPoints >= 20:
+                    symptomStatus = "сложившийся (доминирующий симптом)"
+                else:
+                    symptomStatus = "сложившийся"
+
+            # Загрузка поддельных данных симптома в список всех симптомов внутри фазы
+            fakeList_symptoms.append([symptomPoints, symptomStatus])
+
+        # Загрузка всех данных о фазе в список всех поддельных фаз
+        fakeList_phases.append([phasePoints, phaseStatus, fakeList_symptoms])
+    return fakeList_phases
+
+
 class HandlerQuestions:
     def __init__(self) -> None:
         """
@@ -314,7 +365,7 @@ class HandlerQuestions:
 
             :param data: Список словарей с пользовательскими данными [id - номер вопроса, answer - пользовательский ответ]
             :type data: list[dict[int, int]]
-            :return: Список суммы баллов каждого симптома
+            :return: Список статистики каждой фазы и их симптомов
             :rtype: list
         """
 
@@ -406,3 +457,6 @@ if __name__ == "__main__":
 
     # Вывод статистки в консоль
     print(hq.getStatistics())
+
+    # Обращение к функции для вывода имитационной статистики
+    print(getFakeStatistics([25, 28, 21, 18, 9, 17, 25, 12, 17, 27, 11, 10]))

@@ -12,8 +12,9 @@ from .models import Phase_RESISTANCE
 from .models import Test_Burnout
 
 import json
-from .BurnoutLib.BurnoutLib import HandlerQuestions
+from .BurnoutLib.BurnoutLib import HandlerQuestions, getFakeStatistics
 import time
+from datetime import datetime
 
 # Create your views here.
 
@@ -156,3 +157,50 @@ def POSTanswers(request):
         return JsonResponse(result, safe=False)
 
     return HttpResponseNotAllowed(['POST'])
+
+
+def GETstatistics(request):
+    if request.method == 'GET':
+        t1 = time.time()
+        TG_ID = request.GET.get('TG_ID')
+        people = People.objects.filter(TG_ID=TG_ID)
+        result = []
+
+        if len(people) != 1:
+            return JsonResponse({'status': 'Some problems with TG_ID'}, safe=False)
+
+        people = people[0]
+        testBurnouts = Test_Burnout.objects.filter(People_ID=people)
+
+        for testBurnout in testBurnouts:
+            symptoms = []
+            voltage = testBurnout.VOLTAGE
+            resistance = testBurnout.RESISTANCE
+            exhaustion = testBurnout.EXHAUSTION
+
+            symptoms.append(voltage.Symptom1)
+            symptoms.append(voltage.Symptom2)
+            symptoms.append(voltage.Symptom3)
+            symptoms.append(voltage.Symptom4)
+
+            symptoms.append(resistance.Symptom1)
+            symptoms.append(resistance.Symptom2)
+            symptoms.append(resistance.Symptom3)
+            symptoms.append(resistance.Symptom4)
+
+            symptoms.append(exhaustion.Symptom1)
+            symptoms.append(exhaustion.Symptom2)
+            symptoms.append(exhaustion.Symptom3)
+            symptoms.append(exhaustion.Symptom4)
+
+            node = [
+                {'time': int(testBurnout.Date_Record.timestamp())},
+                getFakeStatistics(symptoms)
+            ]
+
+            result.append(node)
+        runtime = time.time() - t1
+        print(f'runtime {runtime:.5f} sec')
+        return JsonResponse(result, safe=False)
+
+    return HttpResponseNotAllowed(['GET'])
