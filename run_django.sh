@@ -1,3 +1,5 @@
+#!/bin/bash
+
 SESSION="django_proj"
 
 if ! screen -ls | grep -q "$SESSION"; then
