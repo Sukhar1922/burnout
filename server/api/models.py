@@ -10,6 +10,10 @@ class People(models.Model):
     Birthday = models.DateField(null=True, blank=True)
     TG_ID = models.CharField(max_length=64, null=False)
 
+    class Meta:
+        verbose_name = 'Пользователь'
+        verbose_name_plural = 'Пользователи'
+
     def __str__(self):
         return f'{self.Surname} {self.Name}'
 
@@ -65,6 +69,10 @@ class Test_Burnout(models.Model):
     EXHAUSTION = models.ForeignKey(to=Phase_EXHAUSTION, on_delete=models.CASCADE, related_name='Burnout')
     Summary_Value = models.IntegerField()
 
+    class Meta:
+        verbose_name = 'Пройденный тест'
+        verbose_name_plural = 'Пройденные тесты'
+
     def __str__(self):
         return f'{self.People_ID.TG_ID} от {self.Date_Record}'
 
@@ -74,6 +82,10 @@ class Questions(models.Model):
     Name_Question = models.TextField(null=False, blank=False)
     Points_Answer_Yes = models.IntegerField(null=False, blank=False)
     Points_Answer_No = models.IntegerField(null=False, blank=False)
+
+    class Meta:
+        verbose_name = 'Вопрос'
+        verbose_name_plural = 'Вопросы'
 
     def __str__(self):
         return f'{self.Name_Question}'

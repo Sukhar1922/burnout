@@ -8,10 +8,16 @@ from django.core.cache import cache
 # Register your models here.
 # admin.site.register(Questions)
 admin.site.register(People)
-admin.site.register(Phase_VOLTAGE)
-admin.site.register(Phase_RESISTANCE)
-admin.site.register(Phase_EXHAUSTION)
+# admin.site.register(Phase_VOLTAGE)
+# admin.site.register(Phase_RESISTANCE)
+# admin.site.register(Phase_EXHAUSTION)
 admin.site.register(Test_Burnout)
+
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
+
+admin.site.unregister(User)
+admin.site.unregister(Group)
 
 @admin.register(Questions)
 class QuestionsAdmin(admin.ModelAdmin):
