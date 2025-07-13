@@ -6,9 +6,6 @@ from django.db import transaction
 
 from .models import Questions
 from .models import People
-from .models import Phase_VOLTAGE
-from .models import Phase_EXHAUSTION
-from .models import Phase_RESISTANCE
 from .models import Test_Burnout
 
 import json
@@ -82,45 +79,32 @@ def POSTregistration(request):
 
 
 def __addResultsToDB(people, hq):
-    with transaction.atomic():
-        voltage = hq.PhaseVoltage
-        resistance = hq.PhaseResistance
-        exhaustion = hq.PhaseExhaustion
+    # with transaction.atomic():
+    voltage = hq.PhaseVoltage
+    resistance = hq.PhaseResistance
+    exhaustion = hq.PhaseExhaustion
 
-        print(f'voltage.points() {voltage.points}')
-
-        phaseVoltage = Phase_VOLTAGE.objects.create(
-            People_ID=people,
-            Symptom1=voltage.Symptom(1).points,
-            Symptom2=voltage.Symptom(2).points,
-            Symptom3=voltage.Symptom(3).points,
-            Symptom4=voltage.Symptom(4).points,
-            SymptomSum=voltage.points
-        )
-        phaseResistance = Phase_RESISTANCE.objects.create(
-            People_ID=people,
-            Symptom1=resistance.Symptom(1).points,
-            Symptom2=resistance.Symptom(2).points,
-            Symptom3=resistance.Symptom(3).points,
-            Symptom4=resistance.Symptom(4).points,
-            SymptomSum=resistance.points
-        )
-        phaseExhaustion = Phase_EXHAUSTION.objects.create(
-            People_ID=people,
-            Symptom1=exhaustion.Symptom(1).points,
-            Symptom2=exhaustion.Symptom(2).points,
-            Symptom3=exhaustion.Symptom(3).points,
-            Symptom4=exhaustion.Symptom(4).points,
-            SymptomSum=exhaustion.points
-        )
-        testBurnout = Test_Burnout.objects.create(
-            People_ID=people,
-            VOLTAGE=phaseVoltage,
-            RESISTANCE=phaseResistance,
-            EXHAUSTION=phaseExhaustion,
-            Summary_Value=hq.points
-        )
-        return (phaseVoltage, phaseResistance, phaseExhaustion, testBurnout)
+    # print(f'voltage.points() {voltage.points}')
+    testBurnout = Test_Burnout.objects.create(
+        People_ID=people,
+        Voltage_symptom1=voltage.Symptom(1).points,
+        Voltage_symptom2=voltage.Symptom(2).points,
+        Voltage_symptom3=voltage.Symptom(3).points,
+        Voltage_symptom4=voltage.Symptom(4).points,
+        Voltage_symptomSum=voltage.points,
+        resistance_symptom1=resistance.Symptom(1).points,
+        resistance_symptom2=resistance.Symptom(2).points,
+        resistance_symptom3=resistance.Symptom(3).points,
+        resistance_symptom4=resistance.Symptom(4).points,
+        resistance_symptomSum=resistance.points,
+        exhaustion_symptom1=exhaustion.Symptom(1).points,
+        exhaustion_symptom2=exhaustion.Symptom(2).points,
+        exhaustion_symptom3=exhaustion.Symptom(3).points,
+        exhaustion_symptom4=exhaustion.Symptom(4).points,
+        exhaustion_symptomSum=exhaustion.points,
+        Summary_Value=hq.points,
+    )
+    return (testBurnout)
 
 
 def POSTanswers(request):
@@ -155,7 +139,6 @@ def POSTanswers(request):
         else:
             result['status'] = f'DB has more then one {TG_ID}'
         return JsonResponse(result, safe=False)
-
     return HttpResponseNotAllowed(['POST'])
 
 
@@ -174,24 +157,24 @@ def GETstatistics(request):
 
         for testBurnout in testBurnouts:
             symptoms = []
-            voltage = testBurnout.VOLTAGE
-            resistance = testBurnout.RESISTANCE
-            exhaustion = testBurnout.EXHAUSTION
+            # voltage = testBurnout.VOLTAGE
+            # resistance = testBurnout.RESISTANCE
+            # exhaustion = testBurnout.EXHAUSTION
 
-            symptoms.append(voltage.Symptom1)
-            symptoms.append(voltage.Symptom2)
-            symptoms.append(voltage.Symptom3)
-            symptoms.append(voltage.Symptom4)
+            symptoms.append(testBurnout.Voltage_symptom1)
+            symptoms.append(testBurnout.Voltage_symptom2)
+            symptoms.append(testBurnout.Voltage_symptom3)
+            symptoms.append(testBurnout.Voltage_symptom4)
 
-            symptoms.append(resistance.Symptom1)
-            symptoms.append(resistance.Symptom2)
-            symptoms.append(resistance.Symptom3)
-            symptoms.append(resistance.Symptom4)
+            symptoms.append(testBurnout.resistance_symptom1)
+            symptoms.append(testBurnout.resistance_symptom2)
+            symptoms.append(testBurnout.resistance_symptom3)
+            symptoms.append(testBurnout.resistance_symptom4)
 
-            symptoms.append(exhaustion.Symptom1)
-            symptoms.append(exhaustion.Symptom2)
-            symptoms.append(exhaustion.Symptom3)
-            symptoms.append(exhaustion.Symptom4)
+            symptoms.append(testBurnout.exhaustion_symptom1)
+            symptoms.append(testBurnout.exhaustion_symptom2)
+            symptoms.append(testBurnout.exhaustion_symptom3)
+            symptoms.append(testBurnout.exhaustion_symptom4)
 
             node = [
                 {'time': int(testBurnout.Date_Record.timestamp())},
