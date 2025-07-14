@@ -18,48 +18,6 @@ class People(models.Model):
         return f'{self.Surname} {self.Name}'
 
 
-# class Phase_VOLTAGE(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     People_ID = models.ForeignKey(to=People, on_delete=models.CASCADE, related_name='VOLTAGE')
-#     Date_Record = models.DateTimeField(auto_now_add=True)
-#     Symptom1 = models.IntegerField(null=True)
-#     Symptom2 = models.IntegerField(null=True)
-#     Symptom3 = models.IntegerField(null=True)
-#     Symptom4 = models.IntegerField(null=True)
-#     SymptomSum = models.IntegerField(null=True)
-#
-#     def __str__(self):
-#         return f'{self.People_ID.TG_ID} от {self.Date_Record}'
-#
-#
-# class Phase_RESISTANCE(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     People_ID = models.ForeignKey(to=People, on_delete=models.CASCADE, related_name='RESISTANCE')
-#     Date_Record = models.DateTimeField(auto_now_add=True)
-#     Symptom1 = models.IntegerField(null=True)
-#     Symptom2 = models.IntegerField(null=True)
-#     Symptom3 = models.IntegerField(null=True)
-#     Symptom4 = models.IntegerField(null=True)
-#     SymptomSum = models.IntegerField(null=True)
-#
-#     def __str__(self):
-#         return f'{self.People_ID.TG_ID} от {self.Date_Record}'
-#
-#
-# class Phase_EXHAUSTION(models.Model):
-#     id = models.AutoField(primary_key=True)
-#     People_ID = models.ForeignKey(to=People, on_delete=models.CASCADE, related_name='EXHAUSTION')
-#     Date_Record = models.DateTimeField(auto_now_add=True)
-#     Symptom1 = models.IntegerField(null=True)
-#     Symptom2 = models.IntegerField(null=True)
-#     Symptom3 = models.IntegerField(null=True)
-#     Symptom4 = models.IntegerField(null=True)
-#     SymptomSum = models.IntegerField(null=True)
-#
-#     def __str__(self):
-#         return f'{self.People_ID.TG_ID} от {self.Date_Record}'
-
-
 class Test_Burnout(models.Model):
     id = models.AutoField(primary_key=True)
     People_ID = models.ForeignKey(to=People, on_delete=models.CASCADE, related_name='Burnout')
