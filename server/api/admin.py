@@ -1,4 +1,6 @@
 from django.contrib import admin
+from django.contrib.auth.models import User
+from django.contrib.auth.models import Group
 from django.urls import path
 from django.shortcuts import redirect
 from .models import *
@@ -6,12 +8,6 @@ from .models import *
 from django.core.cache import cache
 
 # Register your models here.
-# admin.site.register(Questions)
-# admin.site.register(People)
-# admin.site.register(Test_Burnout)
-
-from django.contrib.auth.models import User
-from django.contrib.auth.models import Group
 
 admin.site.unregister(User)
 admin.site.unregister(Group)
@@ -41,15 +37,10 @@ class QuestionsAdmin(admin.ModelAdmin):
     change_list_template = "admin/questions_change_list.html"
 
 
-from django.contrib import admin
-from .models import People, Test_Burnout, Questions
-
 class TestBurnoutInline(admin.TabularInline):
     model = Test_Burnout
     extra = 0
     readonly_fields = ('Date_Record', 'Voltage_symptomSum', 'resistance_symptomSum', 'exhaustion_symptomSum', 'Summary_Value')
-    can_delete = False
-
     fields = (
         'Date_Record',
         'Voltage_symptomSum',
@@ -57,15 +48,29 @@ class TestBurnoutInline(admin.TabularInline):
         'exhaustion_symptomSum',
         'Summary_Value',
     )
+    can_delete = False
+    # list_filter = ('-Date_Record',)
+    ordering = ('-Date_Record',)
+    show_change_link = True
+
 
 @admin.register(People)
 class PeopleAdmin(admin.ModelAdmin):
-    list_display = ('Surname', 'Name', 'Email', 'TG_ID')
+    # list_display = ('Surname', 'Name', 'Email', 'TG_ID')
     search_fields = ('Surname', 'Name', 'Patronymic', 'TG_ID', 'Email')
     inlines = [TestBurnoutInline]
+    actions = None
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
 
 @admin.register(Test_Burnout)
 class TestBurnoutAdmin(admin.ModelAdmin):
     list_display = ('People_ID', 'Date_Record', 'Summary_Value')
     list_filter = ('Date_Record',)
     search_fields = ('People_ID__Surname', 'People_ID__Name', 'People_ID__TG_ID')
+    actions = None
+
+    def has_change_permission(self, request, obj=None):
+        return False
