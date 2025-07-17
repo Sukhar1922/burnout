@@ -49,7 +49,7 @@ class TestBurnoutInline(admin.TabularInline):
         'Summary_Value',
     )
     can_delete = False
-    # list_filter = ('-Date_Record',)
+    list_filter = ('Date_Record',)
     ordering = ('-Date_Record',)
     show_change_link = True
 
@@ -57,7 +57,8 @@ class TestBurnoutInline(admin.TabularInline):
 @admin.register(People)
 class PeopleAdmin(admin.ModelAdmin):
     # list_display = ('Surname', 'Name', 'Email', 'TG_ID')
-    search_fields = ('Surname', 'Name', 'Patronymic', 'TG_ID', 'Email')
+    search_fields = ('Surname', 'Name', 'Patronymic')
+    search_help_text = 'Для поиска введите что-то из следующего: Фамилия, Имя, Отчество пользователя'
     inlines = [TestBurnoutInline]
     actions = None
 
@@ -68,8 +69,9 @@ class PeopleAdmin(admin.ModelAdmin):
 @admin.register(Test_Burnout)
 class TestBurnoutAdmin(admin.ModelAdmin):
     list_display = ('People_ID', 'Date_Record', 'Summary_Value')
-    list_filter = ('Date_Record',)
-    search_fields = ('People_ID__Surname', 'People_ID__Name', 'People_ID__TG_ID')
+    list_filter = ('Date_Record', 'People_ID')
+    search_fields = ('People_ID__Surname', 'People_ID__Name', 'People_ID__Patronymic')
+    search_help_text = 'Для поиска введите что-то из следующего: Фамилия, Имя, Отчество пользователя'
     actions = None
 
     def has_change_permission(self, request, obj=None):
