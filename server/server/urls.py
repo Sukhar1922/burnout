@@ -20,6 +20,9 @@ from django.urls import include, path
 from django.conf import settings
 from django.conf.urls.static import static
 
+admin.site.site_url = ''
+admin.site.site_header = 'Проект \"Выгорание\"'
+
 urlpatterns = [
     path('django/admin/', admin.site.urls),
     path('django/api/', include('api.urls')),
