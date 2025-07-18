@@ -1,0 +1,59 @@
+{% extends "admin/change_form.html" %}
+{% load static %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block after_related_objects %}
+{{ block.super }}
+
+<div style="max-width: 400px; margin-top: 30px;">
+    <canvas id="burnoutChart"></canvas>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const ctx = document.getElementById('burnoutChart').getContext('2d');
+    const chart = new Chart(ctx, {
+        type: 'radar',
+        data: {
+            labels: [
+                "Переж. обст.", "Неуд. собой", "Загнанность", "Тревога",
+                "Эм. реакция", "Эм. дезор.", "Расш. сферы", "Редукция",
+                "Эм. дефицит", "Эм. отстр.", "Лич. отстр.", "Психосоматика"
+            ],
+            datasets: [{
+                label: "Результаты теста",
+                data: [
+                    {{ original.Voltage_symptom1 }},
+                    {{ original.Voltage_symptom2 }},
+                    {{ original.Voltage_symptom3 }},
+                    {{ original.Voltage_symptom4 }},
+                    {{ original.resistance_symptom1 }},
+                    {{ original.resistance_symptom2 }},
+                    {{ original.resistance_symptom3 }},
+                    {{ original.resistance_symptom4 }},
+                    {{ original.exhaustion_symptom1 }},
+                    {{ original.exhaustion_symptom2 }},
+                    {{ original.exhaustion_symptom3 }},
+                    {{ original.exhaustion_symptom4 }}
+                ],
+                backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                borderColor: 'rgba(54, 162, 235, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                r: {
+                    suggestedMin: 0,
+                    suggestedMax: 30
+                }
+            }
+        }
+    });
+});
+</script>
+{% endblock %}

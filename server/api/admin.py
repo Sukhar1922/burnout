@@ -34,8 +34,6 @@ class QuestionsAdmin(admin.ModelAdmin):
         self.message_user(request, "Кэш вопросов сброшен.")
         return redirect('..')
 
-    change_list_template = "admin/questions_change_list.html"
-
 
 class TestBurnoutInline(admin.TabularInline):
     model = Test_Burnout
@@ -72,6 +70,12 @@ class TestBurnoutAdmin(admin.ModelAdmin):
     list_filter = ('Date_Record', 'People_ID')
     search_fields = ('People_ID__Surname', 'People_ID__Name', 'People_ID__Patronymic')
     search_help_text = 'Для поиска введите что-то из следующего: Фамилия, Имя, Отчество пользователя'
+    # fields = (
+    #     'Voltage_symptomSum',
+    #     'resistance_symptomSum',
+    #     'exhaustion_symptomSum',
+    #     'Summary_Value',
+    # )
     actions = None
 
     def has_change_permission(self, request, obj=None):
