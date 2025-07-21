@@ -6,54 +6,76 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
+<!--Блок полей-->
+{% block field_sets %}
+    <!--Дефолтный джанги-->
+    {% if add %}
+        {{ block.super }}
+    <!--Кастомный-->
+    {% else %}
+        <h3>Кастомный вывод:</h3>
+
+        {% for phase in phases %}
+            <p><strong>{{ phase.name }}: </strong> {{ phase.status }} ({{ phase.points }})</p>
+            <ul>
+                {% for symptom in phase.symptoms %}
+                    <li><span title="ШКИБИДИ">{{ symptom.name }}</span>: {{ symptom.status }} ({{ symptom.points }})</li>
+                {% endfor %}
+            </ul>
+        {% endfor %}
+    {% endif %}
+{% endblock %}
+
+<!--Блок диаграммы как из доты-->
 {% block after_related_objects %}
-{{ block.super }}
+{% if change %}
+    {{ block.super }}
+    <div style="max-width: 400px; margin-top: 30px;">
+        <canvas id="burnoutChart"></canvas>
+    </div>
 
-<div style="max-width: 400px; margin-top: 30px;">
-    <canvas id="burnoutChart"></canvas>
-</div>
-
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const ctx = document.getElementById('burnoutChart').getContext('2d');
-    const chart = new Chart(ctx, {
-        type: 'radar',
-        data: {
-            labels: [
-                "Переж. обст.", "Неуд. собой", "Загнанность", "Тревога",
-                "Эм. реакция", "Эм. дезор.", "Расш. сферы", "Редукция",
-                "Эм. дефицит", "Эм. отстр.", "Лич. отстр.", "Психосоматика"
-            ],
-            datasets: [{
-                label: "Результаты теста",
-                data: [
-                    {{ original.Voltage_symptom1 }},
-                    {{ original.Voltage_symptom2 }},
-                    {{ original.Voltage_symptom3 }},
-                    {{ original.Voltage_symptom4 }},
-                    {{ original.resistance_symptom1 }},
-                    {{ original.resistance_symptom2 }},
-                    {{ original.resistance_symptom3 }},
-                    {{ original.resistance_symptom4 }},
-                    {{ original.exhaustion_symptom1 }},
-                    {{ original.exhaustion_symptom2 }},
-                    {{ original.exhaustion_symptom3 }},
-                    {{ original.exhaustion_symptom4 }}
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const ctx = document.getElementById('burnoutChart').getContext('2d');
+        const chart = new Chart(ctx, {
+            type: 'radar',
+            data: {
+                labels: [
+                    "Переж. обст.", "Неуд. собой", "Загнанность", "Тревога",
+                    "Эм. реакция", "Эм. дезор.", "Расш. сферы", "Редукция",
+                    "Эм. дефицит", "Эм. отстр.", "Лич. отстр.", "Психосоматика"
                 ],
-                backgroundColor: 'rgba(54, 162, 235, 0.2)',
-                borderColor: 'rgba(54, 162, 235, 1)',
-                borderWidth: 1
-            }]
-        },
-        options: {
-            scales: {
-                r: {
-                    suggestedMin: 0,
-                    suggestedMax: 30
+                datasets: [{
+                    label: "Результаты теста",
+                    data: [
+                        {{ original.Voltage_symptom1 }},
+                        {{ original.Voltage_symptom2 }},
+                        {{ original.Voltage_symptom3 }},
+                        {{ original.Voltage_symptom4 }},
+                        {{ original.resistance_symptom1 }},
+                        {{ original.resistance_symptom2 }},
+                        {{ original.resistance_symptom3 }},
+                        {{ original.resistance_symptom4 }},
+                        {{ original.exhaustion_symptom1 }},
+                        {{ original.exhaustion_symptom2 }},
+                        {{ original.exhaustion_symptom3 }},
+                        {{ original.exhaustion_symptom4 }}
+                    ],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        suggestedMin: 0,
+                        suggestedMax: 30
+                    }
                 }
             }
-        }
+        });
     });
-});
-</script>
+    </script>
+{% endif %}
 {% endblock %}

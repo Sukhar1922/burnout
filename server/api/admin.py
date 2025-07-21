@@ -7,6 +7,8 @@ from .models import *
 
 from django.core.cache import cache
 
+from .BurnoutLib.BurnoutLib import HandlerQuestions, getFakeStatistics
+
 # Register your models here.
 
 admin.site.unregister(User)
@@ -80,3 +82,83 @@ class TestBurnoutAdmin(admin.ModelAdmin):
 
     def has_change_permission(self, request, obj=None):
         return False
+
+    def change_view(self, request, object_id, form_url='', extra_context=None):
+        extra_context = extra_context or {}
+
+        instance = self.get_object(request, object_id)
+
+        statistics = getFakeStatistics([
+            instance.Voltage_symptom1,
+            instance.Voltage_symptom2,
+            instance.Voltage_symptom3,
+            instance.Voltage_symptom4,
+            instance.resistance_symptom1,
+            instance.resistance_symptom2,
+            instance.resistance_symptom3,
+            instance.resistance_symptom4,
+            instance.exhaustion_symptom1,
+            instance.exhaustion_symptom2,
+            instance.exhaustion_symptom3,
+            instance.exhaustion_symptom4,
+        ])
+
+        PHASE_NAMES = [
+            [
+                'НАПРЯЖЕНИЕ',
+                [
+                    'Переживание психотравмирующих обстоятельств',
+                    'Неудовлетворенность собой',
+                    '\"Загнанность в клетку\"',
+                    'Тревога и депрессия',
+                ],
+            ],
+            [
+                'РЕЗИСТЕНЦИЯ',
+                [
+                    'Неадекватное избирательное эмоциональное реагирование',
+                    'Эмоционально-нравственная дезориентация',
+                    'Расширение сферы экономии эмоций',
+                    'Редукция профессиональных обязанностей',
+                ],
+            ],
+            [
+                'ИСТОЩЕНИЕ',
+                [
+                    'Эмоциональный дефицит',
+                    'Эмоциональная отстраненность',
+                    'Личностная отстраненность (деперсонализация)',
+                    'Психосоматические и психовегетативные нарушения',
+                ],
+            ],
+        ]
+
+        extra_context['phases'] = [
+            {
+                'name': PHASE_NAMES[i][0],
+                'status': statistics[i][1],
+                'points': statistics[i][0],
+                'symptoms': [
+                    {
+                        'name': PHASE_NAMES[i][1][j],
+                        'status': statistics[i][2][j][1],
+                        'points': statistics[i][2][j][0]
+                    } for j in range(len(PHASE_NAMES[i][1]))
+                ]
+            } for i in range(len(PHASE_NAMES))
+            # {
+            #     'name': 'НАПРЯЖЕНИЕ',
+            #     'status': 'высокий',
+            #     'points': 47,
+            #     'symptoms': [
+            #         {'name': 'Симптом 1', 'status': 'высокий', 'points': 12},
+            #         {'name': 'Симптом 2', 'status': 'высокий', 'points': 10},
+            #         # ...
+            #     ]
+            # },
+            # # ...
+        ]
+
+        return super().change_view(
+            request, object_id, form_url, extra_context=extra_context
+        )
