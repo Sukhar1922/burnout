@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.contrib.auth.models import User
 from django.contrib.auth.models import Group
 from django.urls import path
+from django.urls import reverse
+from django.utils.html import format_html
 from django.shortcuts import redirect
 from .models import *
 
@@ -193,7 +195,10 @@ class TestBurnoutAdmin(admin.ModelAdmin):
                 общаться, развитием психосоматических нарушений.'''
             ],
         ]
-
+        user_obj = instance.People_ID
+        user_url = reverse('admin:api_people_change', args=[user_obj.pk])
+        user_link = format_html('<a href="{}">{}</a>', user_url, user_obj)
+        extra_context['people'] = user_link
         extra_context['phases'] = [
             {
                 'name': PHASE_NAMES[i][0],
@@ -209,17 +214,6 @@ class TestBurnoutAdmin(admin.ModelAdmin):
                     } for j in range(len(PHASE_NAMES[i][1]))
                 ]
             } for i in range(len(PHASE_NAMES))
-            # {
-            #     'name': 'НАПРЯЖЕНИЕ',
-            #     'status': 'высокий',
-            #     'points': 47,
-            #     'symptoms': [
-            #         {'name': 'Симптом 1', 'status': 'высокий', 'points': 12},
-            #         {'name': 'Симптом 2', 'status': 'высокий', 'points': 10},
-            #         # ...
-            #     ]
-            # },
-            # # ...
         ]
 
         return super().change_view(

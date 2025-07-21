@@ -58,7 +58,8 @@
         {{ block.super }}
     <!--Кастомный-->
     {% else %}
-        <h3>Кастомный вывод:</h3>
+        <h3>{{ people|safe }}</h3>
+        <br>
 
         {% for phase in phases %}
             <p>
