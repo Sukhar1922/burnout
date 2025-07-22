@@ -47,17 +47,33 @@
       border-style: solid;
       border-color: #333 transparent transparent transparent;
     }
+
+    .canvas-wrapper {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 20px;
+        justify-content: center;
+        align-items: flex-start;
+        width: 100%;
+    }
+
+    .canvas-wrapper div {
+        flex: 1 1 400px;
+        max-width: 75%;
+        height: auto;
+        min-width: 280px;
+    }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 {% endblock %}
 
 <!--Блок полей-->
 {% block field_sets %}
-    <!--Дефолтный джанги-->
     {% if add %}
+        <!--Дефолтный шаблон джанги-->
         {{ block.super }}
-    <!--Кастомный-->
     {% else %}
+        <!--Кастомный шаблон-->
         <h3>{{ people|safe }}</h3>
         <br>
 
@@ -84,8 +100,17 @@
 {% block after_related_objects %}
 {% if change %}
     {{ block.super }}
-    <div style="max-width: 400px; margin-top: 30px;">
-        <canvas id="burnoutChart"></canvas>
+<!--    <div style="max-width: 400px; margin-top: 30px; display: flex;">-->
+<!--        <canvas id="burnoutChart"></canvas>-->
+<!--        <canvas id="burnoutChart2"></canvas>-->
+<!--    </div>-->
+    <div class="canvas-wrapper">
+        <div>
+            <canvas id="burnoutChart"></canvas>
+        </div>
+        <div>
+            <canvas id="burnoutChart2"></canvas>
+        </div>
     </div>
 
     <script>
@@ -125,6 +150,34 @@
                     r: {
                         suggestedMin: 0,
                         suggestedMax: 30
+                    }
+                }
+            }
+        });
+        const ctx2 = document.getElementById('burnoutChart2').getContext('2d');
+        const chart2 = new Chart(ctx2, {
+            type: 'radar',
+            data: {
+                labels: [
+                    "Суммарное напряжение", "Суммарная резистенция", "Суммарное истощение"
+                ],
+                datasets: [{
+                    label: "Результаты теста",
+                    data: [
+                        {{ original.Voltage_symptomSum }},
+                        {{ original.resistance_symptomSum }},
+                        {{ original.exhaustion_symptomSum }}
+                    ],
+                    backgroundColor: 'rgba(54, 162, 235, 0.2)',
+                    borderColor: 'rgba(54, 162, 235, 1)',
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    r: {
+                        suggestedMin: 0,
+                        suggestedMax: 75
                     }
                 }
             }
