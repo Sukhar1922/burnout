@@ -187,3 +187,18 @@ def GETstatistics(request):
         return JsonResponse(result, safe=False)
 
     return HttpResponseNotAllowed(['GET'])
+
+
+def GETcheckPeople(request):
+    if request.method == 'GET':
+        result = False
+        TG_ID = request.GET.get('TG_ID')
+        if TG_ID is None:
+            result = 'Needs TG_ID field'
+        else:
+            people = People.objects.filter(TG_ID=TG_ID) # Можно лупануть кэш
+            if len(people) != 0:
+                result = True
+
+        return JsonResponse({'isTherePeople': result}, safe=False)
+    return HttpResponseNotAllowed(['GET'])

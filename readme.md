@@ -47,6 +47,9 @@
         api/statistics_26a73614cf8dd8f7aeffec47fef1b6201896ece31e52a0c706ad5b7513f7851a:
             Параметр: TG_ID
             Возвращает все результаты тестов [[{time:timestamp}, [результаты]], [...], ...]
+        api/check_people_0bb97721ff2c77036c66e6953a6ea632a424e36e6730fe74df52e3bbe6fcfa66:
+            Параметр: TG_ID
+            Возвращает true или false в зависимоти от наличия в бд пользователя
     POST:
         api/registration_8d6238094a7742ac22fedb3a180bc590d35f5ea70b8a262cc0bd976349b6181d:
             Параметры регистрации Name, Surname, Partonymic, Email, Birthday, TG_ID
