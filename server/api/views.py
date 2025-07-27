@@ -32,8 +32,7 @@ def GETquestions(request):
     return HttpResponseNotAllowed(['GET'])
 
 
-def fillQuestions(request):
-    flag = False
+def fillQuestions(request, flag=False):
     if not flag:
         return JsonResponse({'result': 'not allowed'}, safe=False)
 
@@ -111,7 +110,10 @@ def POSTanswers(request):
     if request.method == 'POST':
         data = json.loads(request.body)
         answers = data['Answers']
-        TG_ID = data['TG_ID']
+        if 'TG_ID' in data:
+            TG_ID = data['TG_ID']
+        else:
+            TG_ID = ''
         people = People.objects.filter(TG_ID=TG_ID) # Можно будет бахнуть кэш
         result = {}
         # print(people[0])
@@ -130,7 +132,7 @@ def POSTanswers(request):
             t1 = time.time()
             hq = HandlerQuestions()
             testResults = hq.handle_answers(answers)
-            print(testResults)
+            # print(testResults)
             resultTime = time.time() - t1
 
             result['runTime'] = f'{resultTime:.5f} sec'
@@ -183,7 +185,7 @@ def GETstatistics(request):
 
             result.append(node)
         runtime = time.time() - t1
-        print(f'runtime {runtime:.5f} sec')
+        # print(f'runtime {runtime:.5f} sec')
         return JsonResponse(result, safe=False)
 
     return HttpResponseNotAllowed(['GET'])
@@ -197,8 +199,7 @@ def GETcheckPeople(request):
             result = 'Needs TG_ID field'
         else:
             people = People.objects.filter(TG_ID=TG_ID) # Можно лупануть кэш
-            if len(people) != 0:
-                result = True
+            result = len(people) != 0
 
         return JsonResponse({'isTherePeople': result}, safe=False)
     return HttpResponseNotAllowed(['GET'])
