@@ -59,3 +59,17 @@ class Questions(models.Model):
 
     def __str__(self):
         return f'{self.Name_Question}'
+
+
+class Everyweek_Tasks(models.Model):
+    id = models.AutoField(primary_key=True)
+    Phase = models.TextField(null=False, blank=False, verbose_name=u"Фаза задания")
+    Name = models.TextField(null=False, blank=False, verbose_name=u"Название задания")
+    Text = models.TextField(null=False, blank=False, verbose_name=u"Текст задания")
+
+    class Meta:
+        verbose_name = 'Еженедельное задание'
+        verbose_name_plural = 'Еженедельные задания'
+
+    def __str__(self):
+        return f'Фаза {self.Phase}: {self.Name}'

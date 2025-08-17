@@ -3,7 +3,6 @@ import os
 
 from django.test import TestCase, Client
 from .models import *
-from .views import fillQuestions
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 API_ADDRESS = '/django/api'
@@ -14,17 +13,6 @@ class GETquestionsTest(TestCase):
         self.client = Client()
         self.url = f'{API_ADDRESS}/questions_368c231b7c9a3d506cef5a936c83d92f068179d849db19ac2608ba288c7c1c56'
 
-        Questions.objects.create(
-            Name_Question='Любите печеньки с молоком?',
-            Points_Answer_Yes=100,
-            Points_Answer_No=0,
-        )
-        Questions.objects.create(
-            Name_Question='Любите маму с папой?',
-            Points_Answer_Yes=50,
-            Points_Answer_No=0,
-        )
-
     def test_method_not_allowed(self):
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 405)
@@ -32,8 +20,8 @@ class GETquestionsTest(TestCase):
     def test_get_data(self):
         response = self.client.get(self.url)
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()), 2)
-        self.assertEqual(response.json()[0]['Name_Question'], 'Любите печеньки с молоком?')
+        self.assertEqual(len(response.json()), 84)
+        self.assertEqual(response.json()[0]['Name_Question'], 'Организационные недостатки на работе постоянно заставляют нервничать, переживать, напрягаться.')
         self.assertEqual(len(response.json()[1]), 2)
 
 class POSTregistrationTest(TestCase):
@@ -106,8 +94,6 @@ class POSTanswersTest(TestCase):
         self.client = Client()
         self.url = f'{API_ADDRESS}/answers_d4266fadaf6b4d8d557160643324a1d9470a5dc0ad973784f553b6918fc4a619'
 
-        fillQuestions('', flag=True)
-
         People.objects.create(
             Name='Фортенайте',
             Surname='ЫЛЫ',
@@ -157,8 +143,6 @@ class GETstatisticsTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.url = f'{API_ADDRESS}/statistics_26a73614cf8dd8f7aeffec47fef1b6201896ece31e52a0c706ad5b7513f7851a'
-
-        fillQuestions('', flag=True)
 
         People.objects.create(
             Name='Фортенайте',

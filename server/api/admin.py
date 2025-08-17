@@ -16,6 +16,8 @@ from .BurnoutLib.BurnoutLib import HandlerQuestions, getFakeStatistics
 admin.site.unregister(User)
 admin.site.unregister(Group)
 
+admin.site.register(Everyweek_Tasks)
+
 @admin.register(Questions)
 class QuestionsAdmin(admin.ModelAdmin):
     def save_model(self, request, obj, form, change):

@@ -32,29 +32,6 @@ def GETquestions(request):
     return HttpResponseNotAllowed(['GET'])
 
 
-def fillQuestions(request, flag=False):
-    if not flag:
-        return JsonResponse({'result': 'not allowed'}, safe=False)
-
-    with open('api/SQL/Questions_fill.sql', encoding='utf-8') as f:
-        content = f.read()
-        result = __executeSQL(content)
-        cache.delete('questions_cache')
-        return JsonResponse(result, safe=False)
-
-
-def __executeSQL(script):
-    try:
-        with connection.cursor() as cursor:
-            scripts = script.split(';')
-            for script in scripts:
-                if script:
-                    cursor.execute(f'{script};')
-        return {'result': 'success'}
-    except Exception:
-        return {'result': str(Exception)}
-
-
 def POSTregistration(request):
     if request.method == 'POST':
         result = {'status': 'success'}
