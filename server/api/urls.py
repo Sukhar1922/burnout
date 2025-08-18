@@ -26,4 +26,5 @@ urlpatterns = [
     path('answers_d4266fadaf6b4d8d557160643324a1d9470a5dc0ad973784f553b6918fc4a619', views.POSTanswers),
     path('statistics_26a73614cf8dd8f7aeffec47fef1b6201896ece31e52a0c706ad5b7513f7851a', views.GETstatistics),
     path('check_people_0bb97721ff2c77036c66e6953a6ea632a424e36e6730fe74df52e3bbe6fcfa66', views.GETcheckPeople),
+    path('everyweek_tasks_4a73556cb2e8ca050437f3868dccef0cee3bb02b5beb1b8d46882a43e452522e', views.EvereweekTasks),
 ]

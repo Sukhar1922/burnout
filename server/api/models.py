@@ -68,8 +68,26 @@ class Everyweek_Tasks(models.Model):
     Text = models.TextField(null=False, blank=False, verbose_name=u"Текст задания")
 
     class Meta:
+        verbose_name = 'Тип еженедельного задания'
+        verbose_name_plural = 'Типы еженедельного задания'
+
+    def __str__(self):
+        return f'Тип задания {self.Phase}: {self.Name}'
+
+
+class Answers_Everyweek_Tasks(models.Model):
+    id = models.AutoField(primary_key=True)
+    TestID = models.ForeignKey(to=Test_Burnout, on_delete=models.CASCADE, related_name='Answers_everyweek_task',
+                               verbose_name=u"Тест выгорания")
+    TaskID = models.ForeignKey(to=Everyweek_Tasks, on_delete=models.PROTECT, related_name='Answers_everyweek_task',
+                               verbose_name=u"Тип еженедельного задания")
+    Date_Record = models.DateTimeField(auto_now_add=True, verbose_name=u"Дата взятия задания")
+    Stars = models.IntegerField(null=True, blank=True, verbose_name=u"Количество звёзд")
+    Comments = models.TextField(null=True, blank=True, verbose_name=u"Комментарий к заданию")
+
+    class Meta:
         verbose_name = 'Еженедельное задание'
         verbose_name_plural = 'Еженедельные задания'
 
     def __str__(self):
-        return f'Фаза {self.Phase}: {self.Name}'
+        return f'Еженедельное задание {self.TestID}'

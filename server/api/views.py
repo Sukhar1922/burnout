@@ -4,7 +4,7 @@ from django.db import connection
 from django.core.cache import cache
 from django.db import transaction
 
-from .models import Questions
+from .models import Questions, Everyweek_Tasks
 from .models import People
 from .models import Test_Burnout
 
@@ -180,3 +180,30 @@ def GETcheckPeople(request):
 
         return JsonResponse({'isTherePeople': result}, safe=False)
     return HttpResponseNotAllowed(['GET'])
+
+
+def EvereweekTasks(request):
+    if request.method == 'GET':
+        TG_ID = request.GET.get('TG_ID')
+        people = People.objects.filter(TG_ID=TG_ID).first()
+        if people is not None:
+            last_test_burnout = Test_Burnout.objects.filter(People_ID=people).order_by('-Date_Record').values().first()
+            sums = {
+                'Напряжение': last_test_burnout['Voltage_symptomSum'],
+                'Резистенция': last_test_burnout['resistance_symptomSum'],
+                'Истощение': last_test_burnout['exhaustion_symptomSum'],
+            }
+            max_phase = max(sums, key=sums.get)
+            everyweek_task_types = Everyweek_Tasks.objects.filter(Phase=max_phase).values()
+            result = {}
+            tasks = []
+            for everyweek_task_type in everyweek_task_types:
+                tasks.append(everyweek_task_type)
+            result['tasks'] = tasks
+            return JsonResponse(result, safe=False)
+        return JsonResponse({'status': 'There is no such user'}, status=404)
+    elif request.method == 'POST':
+        pass
+    elif request.method == 'PATCH':
+        pass
+    return HttpResponseNotAllowed(['GET', 'POST', 'PATCH'])
