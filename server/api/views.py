@@ -4,7 +4,7 @@ from django.db import connection
 from django.core.cache import cache
 from django.db import transaction
 
-from .models import Questions, Everyweek_Tasks
+from .models import Questions, Everyweek_Tasks, Answers_Everyweek_Tasks
 from .models import People
 from .models import Test_Burnout
 
@@ -200,10 +200,36 @@ def EvereweekTasks(request):
             for everyweek_task_type in everyweek_task_types:
                 tasks.append(everyweek_task_type)
             result['tasks'] = tasks
+            task_history = Answers_Everyweek_Tasks.objects.filter(TestID=last_test_burnout['id']).order_by('-Date_Record')
+            took_tasks = []
+            for test in task_history:
+                took_tasks.append(test.TaskID.id)
+            result['took_tasks'] = took_tasks
             return JsonResponse(result, safe=False)
-        return JsonResponse({'status': 'There is no such user'}, status=404)
+        return JsonResponse({'status': 'There is no such user or empty TG_ID'}, status=404)
+
     elif request.method == 'POST':
-        pass
+        data = json.loads(request.body)
+        if not ('TG_ID' in data and 'TaskID' in data):
+            return JsonResponse({'status': 'TG_ID and TaskID are required'}, status=400)
+        TG_ID = data['TG_ID']
+        TaskID = data['TaskID']
+        people = People.objects.filter(TG_ID=TG_ID).first()
+        if people is None:
+            return JsonResponse({'status': f'There is no such people with such TG_ID: {TG_ID}'}, status=404)
+        last_test_burnout = Test_Burnout.objects.filter(People_ID=people).order_by('-Date_Record').first()
+        if last_test_burnout is None:
+            return JsonResponse({'status': f'There are no tests yet'}, status=404)
+        task = Everyweek_Tasks.objects.filter(id=TaskID).first()
+        if task is None:
+            return JsonResponse({'status': f'There is no task type with id={TaskID}'}, status=404)
+        answer_everyweek_task = Answers_Everyweek_Tasks.objects.create(
+            TestID=last_test_burnout,
+            TaskID=task,
+        )
+        return JsonResponse({'status': f'Task created with id={answer_everyweek_task.id}'}, status=201)
+
     elif request.method == 'PATCH':
         pass
+
     return HttpResponseNotAllowed(['GET', 'POST', 'PATCH'])
