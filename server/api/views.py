@@ -230,6 +230,26 @@ def EvereweekTasks(request):
         return JsonResponse({'status': f'Task created with id={answer_everyweek_task.id}'}, status=201)
 
     elif request.method == 'PATCH':
-        pass
+        data = json.loads(request.body)
+        print(data)
+        if not ('TG_ID' in data and 'Stars' in data and 'Comments' in data):
+            return JsonResponse({'status': 'TG_ID, Stars and Comments are required'}, status=400)
+        TG_ID = data['TG_ID']
+        Stars = int(data['Stars'])
+        Comments = data['Comments']
+        people = People.objects.filter(TG_ID=TG_ID).first()
+        if people is None:
+            return JsonResponse({'status': f'There is no such people with such TG_ID: {TG_ID}'}, status=404)
+        if not (1 <= Stars <= 5):
+            return JsonResponse({'status': f'The number of Stars should be from 1 to 5'}, status=400)
+        last_test_burnout = Test_Burnout.objects.filter(People_ID=people).order_by('-Date_Record').first()
+        if last_test_burnout is None:
+            return JsonResponse({'status': f'There are no tests yet'}, status=404)
+        answer_everyweek_task = Answers_Everyweek_Tasks.objects.filter(TestID=last_test_burnout)\
+            .order_by('-Date_Record').first()
+        answer_everyweek_task.Stars = Stars
+        answer_everyweek_task.Comments = Comments
+        answer_everyweek_task.save()
+        return JsonResponse({'status': f'Task updated with {Stars} stars'}, status=200)
 
     return HttpResponseNotAllowed(['GET', 'POST', 'PATCH'])
