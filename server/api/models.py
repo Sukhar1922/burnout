@@ -44,7 +44,7 @@ class Test_Burnout(models.Model):
         verbose_name_plural = 'Пройденные тесты'
 
     def __str__(self):
-        return f'Тест {self.People_ID} от {self.Date_Record}'
+        return f'Тест {self.People_ID} от {self.Date_Record.date()}'
 
 
 class Questions(models.Model):
@@ -90,4 +90,4 @@ class Answers_Everyweek_Tasks(models.Model):
         verbose_name_plural = 'Еженедельные задания'
 
     def __str__(self):
-        return f'Еженедельное задание {self.TestID}'
+        return f'Еженедельное задание {self.TestID}, {self.TaskID.Name}'

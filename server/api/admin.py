@@ -16,7 +16,6 @@ from .BurnoutLib.BurnoutLib import HandlerQuestions, getFakeStatistics
 admin.site.unregister(User)
 admin.site.unregister(Group)
 
-admin.site.register(Everyweek_Tasks)
 admin.site.register(Answers_Everyweek_Tasks)
 
 @admin.register(Questions)
@@ -40,6 +39,22 @@ class QuestionsAdmin(admin.ModelAdmin):
         cache.delete('questions_cache')
         self.message_user(request, "Кэш вопросов сброшен.")
         return redirect('..')
+
+    readonly_fields = (
+        'id',
+        'Name_Question',
+        'Points_Answer_Yes',
+        'Points_Answer_No',
+    )
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 
 class TestBurnoutInline(admin.TabularInline):
@@ -71,12 +86,43 @@ class PeopleAdmin(admin.ModelAdmin):
         return False
 
 
+class AnswersEveryweekTasksInline(admin.TabularInline):
+    model = Answers_Everyweek_Tasks
+    extra = 0
+    readonly_fields = (
+        'Date_Record',
+        'task_phase',
+        'task_name',
+    )
+    fields = (
+        'task_phase',
+        'task_name',
+        'Date_Record',
+        'Stars',
+    )
+    can_delete = False
+    list_filter = ('Date_Record',)
+    ordering = ('-Date_Record',)
+    show_change_link = True
+
+    def task_phase(self, obj):
+        return obj.TaskID.Phase
+
+    task_phase.short_description = "Фаза задания"
+
+    def task_name(self, obj):
+        return obj.TaskID.Name
+
+    task_name.short_description = "Название задания"
+
+
 @admin.register(Test_Burnout)
 class TestBurnoutAdmin(admin.ModelAdmin):
     list_display = ('People_ID', 'Date_Record', 'Summary_Value')
     list_filter = ('Date_Record', 'People_ID')
     search_fields = ('People_ID__Surname', 'People_ID__Name', 'People_ID__Patronymic')
     search_help_text = 'Для поиска введите что-то из следующего: Фамилия, Имя, Отчество пользователя'
+    inlines = [AnswersEveryweekTasksInline]
     # fields = (
     #     'Voltage_symptomSum',
     #     'resistance_symptomSum',
@@ -222,3 +268,22 @@ class TestBurnoutAdmin(admin.ModelAdmin):
         return super().change_view(
             request, object_id, form_url, extra_context=extra_context
         )
+
+
+@admin.register(Everyweek_Tasks)
+class EveryweekTasksAdmin(admin.ModelAdmin):
+    readonly_fields = (
+        'id',
+        'Phase',
+        'Name',
+        'Text',
+    )
+
+    def has_change_permission(self, request, obj=None):
+        return False
+
+    def has_add_permission(self, request):
+        return False
+
+    def has_delete_permission(self, request, obj=None):
+        return False
