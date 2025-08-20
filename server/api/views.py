@@ -11,7 +11,8 @@ from .models import Test_Burnout
 import json
 from .BurnoutLib.BurnoutLib import HandlerQuestions, getFakeStatistics
 import time
-from datetime import datetime
+from datetime import datetime, timedelta, date
+
 
 # Create your views here.
 
@@ -188,6 +189,10 @@ def EvereweekTasks(request):
         people = People.objects.filter(TG_ID=TG_ID).first()
         if people is not None:
             last_test_burnout = Test_Burnout.objects.filter(People_ID=people).order_by('-Date_Record').values().first()
+            if last_test_burnout is None:
+                return JsonResponse({'status': 'There are no tests'}, status=404)
+            if last_test_burnout['Date_Record'].date() + timedelta(days=30) < date.today():
+                return JsonResponse({'status': 'The test was a long time ago'}, status=410)
             sums = {
                 'Напряжение': last_test_burnout['Voltage_symptomSum'],
                 'Резистенция': last_test_burnout['resistance_symptomSum'],
@@ -205,6 +210,8 @@ def EvereweekTasks(request):
             for test in task_history:
                 took_tasks.append(test.TaskID.id)
             result['took_tasks'] = took_tasks
+            last_task = task_history.values('TaskID_id', 'Date_Record', 'Stars', 'Comments').first()
+            result['last_task'] = last_task
             return JsonResponse(result, safe=False)
         return JsonResponse({'status': 'There is no such user or empty TG_ID'}, status=404)
 
@@ -220,9 +227,20 @@ def EvereweekTasks(request):
         last_test_burnout = Test_Burnout.objects.filter(People_ID=people).order_by('-Date_Record').first()
         if last_test_burnout is None:
             return JsonResponse({'status': f'There are no tests yet'}, status=404)
+
+        answers_everyweek_tasks_with_no_stars = Answers_Everyweek_Tasks.objects.filter(
+            TestID=last_test_burnout,
+            Stars=None,
+        ).values()
+        if len(answers_everyweek_tasks_with_no_stars) > 0:
+            return JsonResponse({'status': f'There is a test with 0 stars'}, status=403)
+
+        if last_test_burnout.Date_Record.date() + timedelta(days=30) < date.today():
+            return JsonResponse({'status': 'The test was a long time ago'}, status=410)
         task = Everyweek_Tasks.objects.filter(id=TaskID).first()
         if task is None:
             return JsonResponse({'status': f'There is no task type with id={TaskID}'}, status=404)
+
         answer_everyweek_task = Answers_Everyweek_Tasks.objects.create(
             TestID=last_test_burnout,
             TaskID=task,
@@ -231,7 +249,6 @@ def EvereweekTasks(request):
 
     elif request.method == 'PATCH':
         data = json.loads(request.body)
-        print(data)
         if not ('TG_ID' in data and 'Stars' in data and 'Comments' in data):
             return JsonResponse({'status': 'TG_ID, Stars and Comments are required'}, status=400)
         TG_ID = data['TG_ID']
@@ -245,8 +262,14 @@ def EvereweekTasks(request):
         last_test_burnout = Test_Burnout.objects.filter(People_ID=people).order_by('-Date_Record').first()
         if last_test_burnout is None:
             return JsonResponse({'status': f'There are no tests yet'}, status=404)
+
+        if not (last_test_burnout.Date_Record.date() + timedelta(days=7) < date.today()):
+            return JsonResponse({'status': f'Still waiting a week...'}, status=403)
+
         answer_everyweek_task = Answers_Everyweek_Tasks.objects.filter(TestID=last_test_burnout)\
             .order_by('-Date_Record').first()
+        if answer_everyweek_task.Stars is not None:
+            return JsonResponse({'status': f'Stars were here before'}, status=403)
         answer_everyweek_task.Stars = Stars
         answer_everyweek_task.Comments = Comments
         answer_everyweek_task.save()
