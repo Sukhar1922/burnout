@@ -93,12 +93,15 @@ class AnswersEveryweekTasksInline(admin.TabularInline):
         'Date_Record',
         'task_phase',
         'task_name',
+        'stars_count',
+        'numbering'
     )
     fields = (
+        'numbering',
         'task_phase',
         'task_name',
         'Date_Record',
-        'Stars',
+        'stars_count',
     )
     can_delete = False
     list_filter = ('Date_Record',)
@@ -115,6 +118,20 @@ class AnswersEveryweekTasksInline(admin.TabularInline):
 
     task_name.short_description = "Название задания"
 
+    def stars_count(self, obj):
+        if obj.Stars:
+            return obj.Stars
+        return 'не выполнено/не оценено'
+
+    stars_count.short_description = "Оценка"
+
+    def numbering(self, obj):
+        qs = list(
+            Answers_Everyweek_Tasks.objects.filter(TestID=obj.TestID).order_by('Date_Record')
+        )
+        return qs.index(obj) + 1
+
+    numbering.short_description = "Неделя"
 
 @admin.register(Test_Burnout)
 class TestBurnoutAdmin(admin.ModelAdmin):
