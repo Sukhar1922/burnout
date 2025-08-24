@@ -4,6 +4,10 @@
 {% block extrahead %}
 {{ block.super }}
 <style>
+    html {
+        scroll-behavior: smooth;
+    }
+
     .tooltip {
       position: relative;
       display: inline-block;
@@ -62,6 +66,15 @@
     }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block object-tools-items %}
+    <li>
+        <a href="#Answers_everyweek_task-heading">
+            К заданиям
+        </a>
+    </li>
+    {{ block.super }}
 {% endblock %}
 
 <!--Блок полей-->
