@@ -117,6 +117,7 @@ DATABASES = {
     }
 }
 
+TG_BOT_TOKEN = config('TG_BOT_TOKEN')
 
 
 # Password validation

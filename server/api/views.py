@@ -13,6 +13,8 @@ from .BurnoutLib.BurnoutLib import HandlerQuestions, getFakeStatistics
 import time
 from datetime import datetime, timedelta, date
 
+from .Utils.send_telegram_message import send_telegram_message
+
 
 # Create your views here.
 
@@ -276,3 +278,8 @@ def EvereweekTasks(request):
         return JsonResponse({'status': f'Task updated with {Stars} stars'}, status=200)
 
     return HttpResponseNotAllowed(['GET', 'POST', 'PATCH'])
+
+
+def TestTG(request):
+    send_telegram_message('2044308378', 'БРРРРРРР шкибиди доп доп ес ес')
+    return JsonResponse({}, status=200)
