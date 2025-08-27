@@ -17,6 +17,7 @@ admin.site.unregister(User)
 admin.site.unregister(Group)
 
 admin.site.register(Answers_Everyweek_Tasks)
+admin.site.register(Options)
 
 @admin.register(Questions)
 class QuestionsAdmin(admin.ModelAdmin):

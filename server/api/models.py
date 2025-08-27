@@ -1,3 +1,5 @@
+import datetime
+
 from django.db import models
 
 # Create your models here.
@@ -91,3 +93,20 @@ class Answers_Everyweek_Tasks(models.Model):
 
     def __str__(self):
         return f'Еженедельное задание {self.TestID}, {self.TaskID.Name}'
+
+
+class Options(models.Model):
+    People_ID = models.OneToOneField(to=People, on_delete=models.CASCADE, related_name='options',
+                                  verbose_name=u"Пользователь", primary_key=True)
+    Notification_Day_Time = models.TimeField(null=True, blank=True, default=datetime.time(20, 30),
+                                             verbose_name="Уведомления на ежедневные задания")
+    Notification_Week_Time = models.TimeField(null=True, blank=True, default=datetime.time(19, 0),
+                                             verbose_name="Уведомления на еженедельные задания")
+
+    class Meta:
+        verbose_name = 'Настройки пользователя'
+        verbose_name_plural = 'Настройки пользователя'
+
+    def __str__(self):
+        return f'Настройки {self.People_ID}'
+
