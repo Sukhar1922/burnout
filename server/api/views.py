@@ -281,5 +281,6 @@ def EvereweekTasks(request):
 
 
 def TestTG(request):
-    send_telegram_message('2044308378', 'БРРРРРРР шкибиди доп доп ес ес')
+    send_telegram_message('2044308378', 'Для улучшения эмоционального состояния рекомендуется удалить '
+                                        'следующее вредоносное ПО: Overwatch 2, Deadlock')
     return JsonResponse({}, status=200)

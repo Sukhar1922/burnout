@@ -117,7 +117,9 @@ DATABASES = {
     }
 }
 
-TG_BOT_TOKEN = config('TG_BOT_TOKEN')
+TG_BOT_ENABLE = (config('TG_BOT_ENABLE')) == 'True'
+if TG_BOT_ENABLE:
+    TG_BOT_TOKEN = config('TG_BOT_TOKEN')
 
 
 # Password validation

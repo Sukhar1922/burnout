@@ -86,6 +86,7 @@ class Answers_Everyweek_Tasks(models.Model):
     Date_Record = models.DateTimeField(auto_now_add=True, verbose_name=u"Дата взятия задания")
     Stars = models.IntegerField(null=True, blank=True, verbose_name=u"Количество звёзд")
     Comments = models.TextField(null=True, blank=True, verbose_name=u"Комментарий к заданию")
+    NotificationSent = models.BooleanField(default=False, verbose_name=u"Уведомление было отправлено?")
 
     class Meta:
         verbose_name = 'Еженедельное задание'
