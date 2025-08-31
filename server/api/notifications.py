@@ -18,7 +18,7 @@ def notify_worker():
             now = timezone.localtime()
             # print(f'now {now}')
 
-            delta8days = now - timedelta(days=7)
+            delta8days = now - timedelta(days=8)
 
             unfinished_everyweek_tasks = Answers_Everyweek_Tasks.objects.filter(
                 Stars=None,
@@ -29,10 +29,11 @@ def notify_worker():
             # print(f'unfinished_everyweek_tasks {unfinished_everyweek_tasks}')
 
             for task in unfinished_everyweek_tasks:
-                deadline = task.Date_Record + timedelta(days=7)
+                deadline = task.Date_Record + timedelta(days=8)
                 if now > deadline:
                     notify_time = task.TestID.People_ID.options.Notification_Week_Time
-                    if notify_time and now.hour == notify_time.hour and now.minute == notify_time.minute:
+                    if notify_time and now.hour == notify_time.hour and now.minute == notify_time.minute \
+                            and task.TestID.People_ID.options.Notification_Week:
                         rows_updated = Answers_Everyweek_Tasks.objects.filter(
                             id=task.id,
                             NotificationSent=False
