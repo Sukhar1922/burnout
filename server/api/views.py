@@ -4,7 +4,7 @@ from django.db import connection
 from django.core.cache import cache
 from django.db import transaction
 
-from .models import Questions, Everyweek_Tasks, Answers_Everyweek_Tasks
+from .models import Questions, Everyweek_Tasks, Answers_Everyweek_Tasks, Options
 from .models import People
 from .models import Test_Burnout
 
@@ -280,7 +280,71 @@ def EvereweekTasks(request):
     return HttpResponseNotAllowed(['GET', 'POST', 'PATCH'])
 
 
-def TestTG(request):
-    send_telegram_message('2044308378', 'Для улучшения эмоционального состояния рекомендуется удалить '
-                                        'следующее вредоносное ПО: Overwatch 2, Deadlock')
-    return JsonResponse({}, status=200)
+# def TestTG(request):
+#     send_telegram_message('2044308378', 'Для улучшения эмоционального состояния рекомендуется удалить '
+#                                         'следующее вредоносное ПО: Overwatch 2, Deadlock')
+#     return JsonResponse({}, status=200)
+
+
+def OptionsAPI(request):
+    if request.method == 'GET':
+        TG_ID = request.GET.get('TG_ID')
+        people = People.objects.filter(TG_ID=TG_ID).first()
+        if people is None:
+            return JsonResponse({'status': f'There is no such people with such TG_ID: {TG_ID}'}, status=404)
+
+        options = Options.objects.filter(People_ID=people).values('Notification_Day',
+                                                                 'Notification_Day_Time',
+                                                                 'Notification_Week',
+                                                                 'Notification_Week_Time').first()
+        options['Email'] = people.Email
+        return JsonResponse(options, status=200, safe=False)
+
+    elif request.method == 'PATCH':
+        data = json.loads(request.body)
+        if 'TG_ID' not in data:
+            return JsonResponse({'status': 'TG_ID is required'}, status=400)
+
+        TG_ID = data['TG_ID']
+        people = People.objects.filter(TG_ID=TG_ID).first()
+        if people is None:
+            return JsonResponse({'status': f'There is no such people with such TG_ID: {TG_ID}'}, status=404)
+
+        options = Options.objects.filter(People_ID=people).first()
+        if options is None:
+            return JsonResponse({'status': 'Options not found for this person'}, status=404)
+
+        allowed_fields = {
+            'Notification_Day',
+            'Notification_Day_Time',
+            'Notification_Week',
+            'Notification_Week_Time',
+            'Email',
+        }
+
+        update_options = {}
+        update_people = {}
+
+        for key, value in data.items():
+            if key == 'TG_ID':
+                continue
+            if key not in allowed_fields:
+                return JsonResponse({'status': f'Field {key} is not allowed'}, status=400)
+
+            if key == 'Email':
+                update_people['Email'] = value
+            else:
+                update_options[key] = value
+
+        if update_people:
+            for k, v in update_people.items():
+                setattr(people, k, v)
+            people.save(update_fields=list(update_people.keys()))
+
+        if update_options:
+            for k, v in update_options.items():
+                setattr(options, k, v)
+            options.save(update_fields=list(update_options.keys()))
+
+        return JsonResponse({'status': 'Updated'}, status=200)
+    return HttpResponseNotAllowed(['GET', 'PATCH'])

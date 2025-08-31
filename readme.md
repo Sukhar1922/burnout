@@ -55,6 +55,19 @@
                 "took_tasks": [Список из id взятых заданий от самого свежего],
                 "last_task": {Словарь из id задания, Времени взятия, Звёздочек и комментария к последнему заданию}
             }
+        api/options_33eafc9c4333dc5ecbe984d3b75cc9a683a3f86f143bb5ed68607947f5c20a19:
+            Параметр: TG_ID
+            Возвращает словарь из настроек: Почта, время для уведомлений, флаги для разрешения уведомлений
+            Пример возврата:
+            {
+                "Notification_Day": true,
+                "Notification_Day_Time": "21:12:00",
+                "Notification_Week": true,
+                "Notification_Week_Time": "21:16:37",
+                "Email": "skibididobdobyesyes@ya.ru"
+            }
+            Notification_Day служит как флаг разрешения на отсылку времени
+            Notification_Day_Time указывает время на уведомления (секунды не учитываются при отсылке уведомлений)
     POST:
         api/registration_8d6238094a7742ac22fedb3a180bc590d35f5ea70b8a262cc0bd976349b6181d:
             Параметры регистрации Name, Surname, Partonymic, Email, Birthday, TG_ID
@@ -78,4 +91,9 @@
             Stars должно быть числом от 1 до 5, Comments можно оставить пустым
             Должно пройти 7 дней с момента взятия задания для изменения числа звёздочек
             Возвращает сообщение, что задача обновлена с указаным числом звёздочек
+        api/options_33eafc9c4333dc5ecbe984d3b75cc9a683a3f86f143bb5ed68607947f5c20a19:
+            Параметры:
+                Обязательный: TG_ID
+                Необазательные: Notification_Day, Notification_Day_Time, Notification_Week, Notification_Week_Time, Email
+            
             

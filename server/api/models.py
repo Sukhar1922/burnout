@@ -99,8 +99,10 @@ class Answers_Everyweek_Tasks(models.Model):
 class Options(models.Model):
     People_ID = models.OneToOneField(to=People, on_delete=models.CASCADE, related_name='options',
                                   verbose_name=u"Пользователь", primary_key=True)
+    Notification_Day = models.BooleanField(default=True)
     Notification_Day_Time = models.TimeField(null=True, blank=True, default=datetime.time(20, 30),
                                              verbose_name="Уведомления на ежедневные задания")
+    Notification_Week = models.BooleanField(default=True)
     Notification_Week_Time = models.TimeField(null=True, blank=True, default=datetime.time(19, 0),
                                              verbose_name="Уведомления на еженедельные задания")
 

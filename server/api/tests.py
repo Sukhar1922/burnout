@@ -414,3 +414,69 @@ class EvereweekTasksTest(TestCase):
             self.assertEqual(response.status_code, 403)
 
 
+class OptionsTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = f'{API_ADDRESS}/options_33eafc9c4333dc5ecbe984d3b75cc9a683a3f86f143bb5ed68607947f5c20a19'
+
+        People.objects.create(
+            Name='Фортенайте',
+            Surname='ЫЛЫ',
+            Patronymic='ПаБаДЖи',
+            Email='ПабаДЖы@.',
+            Birthday='2000-12-04',
+            TG_ID='17'
+        )
+
+    def test_get_empty_TG_ID(self):
+        response = self.client.get(self.url, {}, content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+
+    def test_get_invalid_TG_ID(self):
+        data = {
+            'TG_ID': 'brrr',
+        }
+        response = self.client.get(self.url, data, content_type='application/json')
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['status'], f'There is no such people with such TG_ID: {data["TG_ID"]}')
+
+    def test_get_existing_TG_ID(self):
+        data = {
+            'TG_ID': '17',
+        }
+        response = self.client.get(self.url, data, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 5)
+
+    def test_patch_missing_tg_id(self):
+        response = self.client.patch(self.url, {}, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()['status'], 'TG_ID is required')
+
+    def test_patch_invalid_tg_id(self):
+        data = {"TG_ID": "999"}
+        response = self.client.patch(self.url, data, content_type="application/json")
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("There is no such people", response.json()['status'])
+
+    def test_patch_invalid_field(self):
+        data = {"TG_ID": "17", "KEK": "LOL"}
+        response = self.client.patch(self.url, data, content_type="application/json")
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("Field KEK is not allowed", response.json()['status'])
+
+    def test_patch_update_email(self):
+        data = {"TG_ID": "17", "Email": "NotSkibidi@mail.com"}
+        response = self.client.patch(self.url, data, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'Updated')
+        person = People.objects.filter(TG_ID=17).first()
+        self.assertEqual(person.Email, "NotSkibidi@mail.com")
+
+    def test_patch_update_options_field(self):
+        data = {"TG_ID": "17", "Notification_Day": "False", "Notification_Day_Time": "17:00:00"}
+        response = self.client.patch(self.url, data, content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        options = People.objects.filter(TG_ID=17).first().options
+        self.assertEqual(options.Notification_Day, False)
+        self.assertEqual(options.Notification_Day_Time, datetime.time(17, 0))
