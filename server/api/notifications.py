@@ -34,14 +34,15 @@ def notify_worker():
                     notify_time = task.TestID.People_ID.options.Notification_Week_Time
                     if notify_time and now.hour == notify_time.hour and now.minute == notify_time.minute \
                             and task.TestID.People_ID.options.Notification_Week:
-                        rows_updated = Answers_Everyweek_Tasks.objects.filter(
+                        rows_update = Answers_Everyweek_Tasks.objects.filter(
                             id=task.id,
                             NotificationSent=False
-                        ).update(NotificationSent=True)
-                        print(f'rows_updated {rows_updated}')
-                        if rows_updated:
+                        )
+                        print(f'rows_update {rows_update}')
+                        if rows_update:
                             # send_telegram_message(task.TestID.People_ID, f"Задание '{task.TaskID}' просрочено!")
                             send_telegram_message(task.TestID.People_ID.TG_ID, f"Задание '{task.TaskID.Name}' просрочено!")
+                            rows_update.update(NotificationSent=True)
 
         except Exception as e:
             print(f"[NotifyWorker ERROR]: {e}")
