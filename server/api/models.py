@@ -86,7 +86,7 @@ class Answers_Everyweek_Tasks(models.Model):
     Date_Record = models.DateTimeField(auto_now_add=True, verbose_name=u"Дата взятия задания")
     Stars = models.IntegerField(null=True, blank=True, verbose_name=u"Количество звёзд")
     Comments = models.TextField(null=True, blank=True, verbose_name=u"Комментарий к заданию")
-    NotificationSent = models.BooleanField(default=False, verbose_name=u"Уведомление было отправлено?")
+    NotificationSent = models.BooleanField(default=False, verbose_name=u"Уведомление было отправлено?") # потом удалить
 
     class Meta:
         verbose_name = 'Еженедельное задание'
@@ -113,3 +113,21 @@ class Options(models.Model):
     def __str__(self):
         return f'Настройки {self.People_ID}'
 
+
+class NotificationEvent(models.Model):
+    People_ID = models.ForeignKey(People, on_delete=models.CASCADE, related_name="notifications")
+    Message = models.TextField(verbose_name="Текст уведомления")
+    Created_at = models.DateTimeField(auto_now_add=True)
+    Scheduled_at = models.DateTimeField(verbose_name="Когда надо отправить")
+    Sent = models.BooleanField(default=False, verbose_name="Должно было отправиться")
+    Sent_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f'Уведомление {self.People_ID}: {self.Message}'
+
+    class Meta:
+        verbose_name = "Уведомление"
+        verbose_name_plural = "Уведомления"
+        indexes = [
+            models.Index(fields=["Sent", "Scheduled_at"]),
+        ]

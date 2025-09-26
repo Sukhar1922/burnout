@@ -5,51 +5,35 @@ from django.utils import timezone
 from django.db import close_old_connections
 from django.db.models import F, ExpressionWrapper, DateTimeField
 
-from .models import Answers_Everyweek_Tasks, Options
+from .models import Answers_Everyweek_Tasks, Options, NotificationEvent
 from .Utils.send_telegram_message import send_telegram_message
 
 
 def notify_worker():
-    """
-    Фоновый поток: проверяет просроченные задания и отправляет уведомления.
-    """
     while True:
         try:
+            print('Итерация уведомлений')
             now = timezone.localtime()
-            # print(f'now {now}')
-
-            delta8days = now - timedelta(days=8)
-
-            unfinished_everyweek_tasks = Answers_Everyweek_Tasks.objects.filter(
-                Stars=None,
-                NotificationSent=False,
-                Date_Record__lt=delta8days
+            events = NotificationEvent.objects.filter(
+                Sent=False,
+                Scheduled_at__lte=now
             )
 
-            # print(f'unfinished_everyweek_tasks {unfinished_everyweek_tasks}')
-
-            for task in unfinished_everyweek_tasks:
-                deadline = task.Date_Record + timedelta(days=8)
-                if now > deadline:
-                    notify_time = task.TestID.People_ID.options.Notification_Week_Time
-                    if notify_time and now.hour == notify_time.hour and now.minute == notify_time.minute \
-                            and task.TestID.People_ID.options.Notification_Week:
-                        rows_update = Answers_Everyweek_Tasks.objects.filter(
-                            id=task.id,
-                            NotificationSent=False
-                        )
-                        print(f'rows_update {rows_update}')
-                        if rows_update:
-                            # send_telegram_message(task.TestID.People_ID, f"Задание '{task.TaskID}' просрочено!")
-                            send_telegram_message(task.TestID.People_ID.TG_ID, f"Задание '{task.TaskID.Name}' просрочено!")
-                            rows_update.update(NotificationSent=True)
+            for event in events:
+                if event.People_ID.options.Notification_Week:
+                    # а ещё проверять, что пользовательн е выключил уведомления
+                    send_telegram_message(event.People_ID.TG_ID, event.Message)
+                    event.Sent = True
+                    event.Sent_at = now
+                    event.save(update_fields=["Sent", "Sent_at"])
+                else:
+                    event.Sent = True
+                    event.save(update_fields=["Sent"])
 
         except Exception as e:
             print(f"[NotifyWorker ERROR]: {e}")
         finally:
-            # Освобождаем соединения к БД
             close_old_connections()
-
         time.sleep(30)
 
 

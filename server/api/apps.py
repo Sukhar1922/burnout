@@ -17,7 +17,9 @@ class ApiConfig(AppConfig):
             import sys
             if "runserver" in sys.argv or "gunicorn" in sys.argv:
                 from .notifications import start_notify_worker
+                from .notificationsGen import start_generator_worker
                 import os
 
                 if os.environ.get("RUN_MAIN") == "true":
                     start_notify_worker()
+                    start_generator_worker()
