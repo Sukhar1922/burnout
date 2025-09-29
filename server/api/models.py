@@ -1,5 +1,7 @@
 import datetime
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 # Create your models here.
@@ -118,9 +120,13 @@ class NotificationEvent(models.Model):
     People_ID = models.ForeignKey(People, on_delete=models.CASCADE, related_name="notifications")
     Message = models.TextField(verbose_name="Текст уведомления")
     Created_at = models.DateTimeField(auto_now_add=True)
-    Scheduled_at = models.DateTimeField(verbose_name="Когда надо отправить")
-    Sent = models.BooleanField(default=False, verbose_name="Должно было отправиться")
-    Sent_at = models.DateTimeField(null=True, blank=True)
+    # Scheduled_at = models.DateTimeField(verbose_name="Когда надо отправить")
+    # Sent = models.BooleanField(default=False, verbose_name="Должно было отправиться")
+    # Sent_at = models.DateTimeField(null=True, blank=True)
+
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True, blank=True)
+    object_id = models.PositiveIntegerField(null=True, blank=True)
+    related_object = GenericForeignKey("content_type", "object_id")
 
     def __str__(self):
         return f'Уведомление {self.People_ID}: {self.Message}'
@@ -129,5 +135,5 @@ class NotificationEvent(models.Model):
         verbose_name = "Уведомление"
         verbose_name_plural = "Уведомления"
         indexes = [
-            models.Index(fields=["Sent", "Scheduled_at"]),
+            models.Index(fields=["Created_at"]),
         ]

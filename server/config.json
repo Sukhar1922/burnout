@@ -1,0 +1,7 @@
+{
+  "config": {
+    "notifications": {
+      "unfinished_task": "Задание «{task_name}» просрочено!"
+    }
+  }
+}

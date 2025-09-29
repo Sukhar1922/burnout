@@ -1,6 +1,8 @@
 from django.apps import AppConfig
 from django.conf import settings
 
+from .config_loader import Config
+
 
 class ApiConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
@@ -10,6 +12,7 @@ class ApiConfig(AppConfig):
     def ready(self):
         import api.signals
 
+        Config.load()
 
         # Запускаем фонового воркера только когда реально стартует сервер,
         # а не во время миграций/менеджмент-команд
@@ -21,5 +24,7 @@ class ApiConfig(AppConfig):
                 import os
 
                 if os.environ.get("RUN_MAIN") == "true":
-                    start_notify_worker()
-                    start_generator_worker()
+                    # start_notify_worker()
+                    # start_generator_worker()
+
+                    pass
