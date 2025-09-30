@@ -1,7 +1,13 @@
 {
   "config": {
     "notifications": {
-      "unfinished_task": "Задание «{task_name}» просрочено!"
+      "unfinished_task": "Задание «{task_name}» просрочено!",
+      "uncompleted_test": "Пройдите тест для оценки вашего выгорания и перейдите к выбору задания на неделю.",
+      "unselected_task": "Выберите задание на текущую неделю, чтобы сказать выгоранию «Нет!»",
+      "daily_health_check": "Время оценить самочувствие и выполнить задание!"
+    },
+    "timers": {
+      "notification_sleep": 30
     }
   }
 }

@@ -193,7 +193,7 @@ def EvereweekTasks(request):
             last_test_burnout = Test_Burnout.objects.filter(People_ID=people).order_by('-Date_Record').values().first()
             if last_test_burnout is None:
                 return JsonResponse({'status': 'There are no tests'}, status=404)
-            if last_test_burnout['Date_Record'].date() + timedelta(days=30) < date.today():
+            if last_test_burnout['Date_Record'].date() + timedelta(days=31) < date.today():
                 return JsonResponse({'status': 'The test was a long time ago'}, status=410)
             sums = {
                 'Напряжение': last_test_burnout['Voltage_symptomSum'],
@@ -237,7 +237,7 @@ def EvereweekTasks(request):
         if len(answers_everyweek_tasks_with_no_stars) > 0:
             return JsonResponse({'status': f'There is a test with 0 stars'}, status=403)
 
-        if last_test_burnout.Date_Record.date() + timedelta(days=30) < date.today():
+        if last_test_burnout.Date_Record.date() + timedelta(days=31) < date.today():
             return JsonResponse({'status': 'The test was a long time ago'}, status=410)
         task = Everyweek_Tasks.objects.filter(id=TaskID).first()
         if task is None:

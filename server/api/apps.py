@@ -24,7 +24,7 @@ class ApiConfig(AppConfig):
                 import os
 
                 if os.environ.get("RUN_MAIN") == "true":
-                    # start_notify_worker()
+                    start_notify_worker()
                     # start_generator_worker()
 
                     pass
