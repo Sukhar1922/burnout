@@ -19,12 +19,10 @@ class ApiConfig(AppConfig):
         if settings.TG_BOT_ENABLE:
             import sys
             if "runserver" in sys.argv or "gunicorn" in sys.argv:
-                from .notifications import start_notify_worker
-                from .notificationsGen import start_generator_worker
+                # from .notifications import start_notify_worker
                 import os
 
                 if os.environ.get("RUN_MAIN") == "true":
-                    start_notify_worker()
-                    # start_generator_worker()
+                    # start_notify_worker()
 
                     pass

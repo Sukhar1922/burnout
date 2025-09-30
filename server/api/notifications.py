@@ -1,3 +1,13 @@
+import os
+import sys
+import django
+
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+os.environ.setdefault("DJANGO_SETTINGS_MODULE", "server.settings")
+django.setup()
+
+
 import threading
 import time
 from datetime import timedelta
@@ -7,12 +17,15 @@ from django.db import close_old_connections
 from django.db.models import F, ExpressionWrapper, DateTimeField
 from django.contrib.contenttypes.models import ContentType
 
-from .config_loader import Config
+from api.config_loader import Config
 from .models import Answers_Everyweek_Tasks, Options, NotificationEvent, Test_Burnout
 from .Utils.send_telegram_message import send_telegram_message
 
 
 class Notification:
+    """
+    Класс для удобного хранения полей для создания таблицы NotificationEvent.
+    """
     def __init__(self, People_ID, Message, content_type, object_id):
         self.people_id = People_ID
         self.message = Message
@@ -21,6 +34,13 @@ class Notification:
 
 
 def unfinished_task_notifications(now_attr):
+    """
+    Генератор уведомлений для ситуации, когда с момента взятия задания прошло более 7 дней.
+    Уведомляет пользователя, что пора бы оценить задание.
+    Берёт все незавершённые задания, проверят, что пользователь не получал уведомление, и возвращает список уведомлений.
+    :param now_attr: Параметр для передачи времени начала итерации воркера.
+    :return: Список с уведомлениями.
+    """
     now = now_attr
     week_ago = now - timedelta(days=7)
     month_ago = now - timedelta(days=31)
@@ -30,10 +50,7 @@ def unfinished_task_notifications(now_attr):
     unfinished_tasks = Answers_Everyweek_Tasks.objects.filter(
         Stars__isnull=True,
         Date_Record__range=(month_ago, week_ago)
-        # Date_Record__gte=month_ago,
-        # Date_Record__lte=week_ago,
     ).select_related("TestID__People_ID", "TaskID", "TestID__People_ID__options")
-    # print(f'unfinished_tasks: {unfinished_tasks}')
 
     task_ct = ContentType.objects.get_for_model(Answers_Everyweek_Tasks)
 
@@ -49,15 +66,9 @@ def unfinished_task_notifications(now_attr):
         options = getattr(person, "options", None)
 
         if not options or not options.Notification_Week:
-            continue  # уведомления отключены или нет времени
+            continue  # уведомления отключены
 
         # Проверяем, есть ли уже уведомление для этого задания и пользователя
-        # if NotificationEvent.objects.filter(
-        #         People_ID=person,
-        #         content_type=task_ct,
-        #         object_id=task.id
-        # ).exists():
-        #     continue
         if task.id in existing: continue
 
         message = Config.config['notifications']['unfinished_task'].format(task_name=task.TaskID.Name)
@@ -67,6 +78,14 @@ def unfinished_task_notifications(now_attr):
 
 
 def uncompleted_test_notification(now_attr):
+    """
+    Генератор уведомлений для ситуации, когда пользователь не прошёл ежемесячный тест.
+    Уведомляет пользователя, что нужно пройти тест.
+    Берёт последние тесты, которые были месяц назад. Проверят, что на последнем тесте есть оценка, проверят включённость
+    уведомлений у пользователя, после чего добавляет уведомления.
+    :param now_attr: Параметр для передачи времени начала итерации воркера.
+    :return: Список с уведомлениями.
+    """
     now = now_attr
     month_ago = now - timedelta(days=31)
     three_month_ago = now - timedelta(days=31*3)
@@ -94,6 +113,12 @@ def uncompleted_test_notification(now_attr):
     # Чтобы не брать старые тесты одного и того же человека
     seen_people = set()
     for test in last_tests:
+        person = test.People_ID
+        options = getattr(person, "options", None)
+
+        if not options or not options.Notification_Week:
+            continue  # уведомления отключены
+
         if test.People_ID_id in seen_people:
             continue
         seen_people.add(test.People_ID_id)
@@ -121,6 +146,13 @@ def uncompleted_test_notification(now_attr):
 
 
 def unselected_task_notification(now_attr):
+    """
+    Генератор уведомлений, на случай, если пользователь день назад прошёл тест, но не взял задание.
+    Уведомляет пользователя, что надо взять еженедельное задание.
+    Берёт последние тесты, проверят, что для них нет активных заданий, у пользователя включены уведомления.
+    :param now_attr: Параметр для передачи времени начала итерации воркера.
+    :return: Список с уведомлениями.
+    """
     now = now_attr
     day_ago = now - timedelta(days=1)
     week_ago = now - timedelta(days=7)
@@ -146,6 +178,12 @@ def unselected_task_notification(now_attr):
 
     seen_people = set()
     for test in last_tests:
+        person = test.People_ID
+        options = getattr(person, "options", None)
+
+        if not options or not options.Notification_Week:
+            continue  # уведомления отключены
+
         if test.People_ID_id in seen_people:
             continue
         seen_people.add(test.People_ID_id)
@@ -173,14 +211,22 @@ def unselected_task_notification(now_attr):
 
 
 def notify_worker():
+    """
+    Воркер уведомлений, который запускается параллельно основному приложению Django.
+    Раз в заданное время проверя, нужно ли отправлять уведомления. Отправленные уведомления сохраняются в бд.
+
+    :return:
+    """
     NOTIFICATION_SLEEP = Config.config["timers"]["notification_sleep"]
-    print(NOTIFICATION_SLEEP)
+    # print(NOTIFICATION_SLEEP)
     while True:
         try:
-            print('Итерация уведомлений')
+            # print('Итерация уведомлений')
             now = timezone.localtime()
+            print(f'[{now}] Итерация')
             event_groups = []
 
+            # Здесь указываются функции, которые собирают уведомления
             event_groups.append(unfinished_task_notifications(now))
             event_groups.append(uncompleted_test_notification(now))
             event_groups.append(unselected_task_notification(now))
@@ -228,3 +274,8 @@ def start_notify_worker():
     t = threading.Thread(target=notify_worker, daemon=True)
     t.start()
     print('Поток запущен')
+
+
+# if __name__ == '__main__':
+#
+#     notify_worker()
