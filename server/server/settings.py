@@ -44,7 +44,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'corsheaders',
+    'server.apps.ServerConfig',
     'api',
+    'notificator',
 ]
 
 MIDDLEWARE = [
@@ -117,10 +119,7 @@ DATABASES = {
     }
 }
 
-TG_BOT_ENABLE = (config('TG_BOT_ENABLE')) == 'True'
-if TG_BOT_ENABLE:
-    TG_BOT_TOKEN = config('TG_BOT_TOKEN')
-
+TG_BOT_TOKEN = config('TG_BOT_TOKEN')
 
 # Password validation
 # https://docs.djangoproject.com/en/5.2/ref/settings/#auth-password-validators

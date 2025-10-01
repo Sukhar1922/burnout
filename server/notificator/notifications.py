@@ -17,9 +17,9 @@ from django.db import close_old_connections
 from django.db.models import F, ExpressionWrapper, DateTimeField
 from django.contrib.contenttypes.models import ContentType
 
-from api.config_loader import Config
-from .models import Answers_Everyweek_Tasks, Options, NotificationEvent, Test_Burnout
-from .Utils.send_telegram_message import send_telegram_message
+from server.config_loader import Config
+from api.models import Answers_Everyweek_Tasks, Options, NotificationEvent, Test_Burnout
+from Utils.send_telegram_message import send_telegram_message
 
 
 class Notification:

@@ -6,7 +6,8 @@ from freezegun import freeze_time
 
 from .models import *
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+JSON_ADDRESS = os.path.join(BASE_DIR, "Utils/answers.json")
 API_ADDRESS = '/django/api'
 
 # Create your tests here.
@@ -49,7 +50,7 @@ class GETquestionsTest(TestCase):
         self.assertEqual(len(response.json()[1]), 2)
 
     def test_get_data_with_active_test(self):
-        json_path = os.path.join(BASE_DIR, "Utils/answers.json")
+        json_path = JSON_ADDRESS
         with open(json_path, 'r') as f:
             data = json.load(f)
             data['TG_ID'] = '17'
@@ -60,7 +61,7 @@ class GETquestionsTest(TestCase):
 
     @freeze_time("2025-08-01")
     def test_get_data_without_active_test(self):
-        json_path = os.path.join(BASE_DIR, "Utils/answers.json")
+        json_path = JSON_ADDRESS
         with open(json_path, 'r') as f:
             data = json.load(f)
             data['TG_ID'] = '17'
@@ -170,7 +171,7 @@ class POSTanswersTest(TestCase):
         self.assertEqual(response.status_code, 405)
 
     def test_answer_with_empty_TG_ID(self):
-        json_path = os.path.join(BASE_DIR, "Utils/answers.json")
+        json_path = JSON_ADDRESS
         with open(json_path, 'r') as f:
             data = json.load(f)
             del data['TG_ID']
@@ -180,7 +181,7 @@ class POSTanswersTest(TestCase):
             self.assertEqual(response.json()['status'], 'DB has not changed')
 
     def test_answer_with_invalid_TG_ID(self):
-        json_path = os.path.join(BASE_DIR, "Utils/answers.json")
+        json_path = JSON_ADDRESS
         with open(json_path, 'r') as f:
             data = json.load(f)
             data['TG_ID'] = '71' # valid is 17
@@ -190,7 +191,7 @@ class POSTanswersTest(TestCase):
             self.assertEqual(response.json()['status'], 'DB has not changed')
 
     def test_answer_with_valid_TG_ID(self):
-        json_path = os.path.join(BASE_DIR, "Utils/answers.json")
+        json_path = JSON_ADDRESS
         with open(json_path, 'r') as f:
             data = json.load(f)
             data['TG_ID'] = '17'
@@ -214,7 +215,7 @@ class GETstatisticsTest(TestCase):
             TG_ID='17'
         )
 
-        json_path = os.path.join(BASE_DIR, "Utils/answers.json")
+        json_path = JSON_ADDRESS
         with open(json_path, 'r') as f:
             data = json.load(f)
             data['TG_ID'] = '17'
@@ -278,7 +279,7 @@ class GETcheckPeopleTest(TestCase):
 
 
 def addBurnoutTest(client):
-    json_path = os.path.join(BASE_DIR, "Utils/answers.json")
+    json_path = JSON_ADDRESS
     with open(json_path, 'r') as f:
         data = json.load(f)
         data['TG_ID'] = '17'

@@ -1,13 +1,13 @@
 from django.apps import AppConfig
 from django.conf import settings
 
+from .config_loader import Config
 
-class ApiConfig(AppConfig):
+
+class ServerConfig(AppConfig):
     default_auto_field = 'django.db.models.BigAutoField'
-    name = 'api'
+    name = 'server'
     verbose_name = "Проект \"Выгорание\""
 
     def ready(self):
-        import api.signals
-
-        return 0
+        Config.load()

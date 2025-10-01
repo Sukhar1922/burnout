@@ -14,9 +14,6 @@ from .BurnoutLib.BurnoutLib import HandlerQuestions, getFakeStatistics
 import time
 from datetime import datetime, timedelta, date
 
-from .Utils.send_telegram_message import send_telegram_message
-
-
 # Create your views here.
 
 def test(request):

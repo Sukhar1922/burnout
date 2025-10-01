@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from api.notifications import notify_worker
+from notificator.notifications import notify_worker
 
 
 class Command(BaseCommand):

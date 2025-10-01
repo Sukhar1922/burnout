@@ -11,7 +11,7 @@ services:
     ports:
       - "82:82"
     env_file:
-      - ./server/.env
+      - ./.env
 
   notification_worker:
     build:
@@ -25,17 +25,19 @@ services:
     volumes:
       - ./server:/app_worker
     env_file:
-      - ./server/.env
+      - ./.env
 
   db:
     image: postgres:17
     restart: always
+    env_file:
+      - ./.env
     environment:
-      POSTGRES_DB: ${POSTGRES_DB}
-      POSTGRES_USER: ${POSTGRES_USER}
-      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      test: ["CMD-SHELL", "pg_isready -U $${DB_USER} -d $${DB_NAME}"]
       interval: 10s
       timeout: 5s
       retries: 5

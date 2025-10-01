@@ -1,33 +1,24 @@
 ### Требования
 - git
-- python 3.12 (тестировалось на python 3.12.10)
-- PostgreSQL (тестировалось на 17.5)
+- Docker
 
 ### Установка 
-    1. python -m venv venv
-    2. Для Win:
-        venv/scripts/activate
-    2. Для Linux:
-        source venv/bin/activate
-    3. pip install -r requirements.txt
-    4. cd server
-    5. cp .env.example .env
-    6. Установить свою конфигурацию для бд на postgreSQL с помощью vim .env
+    1. git clone https://github.com/Sukhar1922/burnout.git
+    2. cd burnout
+    3. cp .env.example .env
+    4. Нужно указать токен от тг-бота с помощью vim .env или nano .env
+            Отсальные поля можно поменять по желанию
+    5. docker compose build
+
+### Установка админа
+    docker compose run web python manage.py createsuperuser
+    Следовать появляющимся инструкциям
 
 ### Запуск
-    1. Для Win:
-        venv/scripts/activate
-    1. Для Linux:
-        source venv/bin/activate
-    2. cd server
-    3. Для Win:
-        python manage.py runserver 0.0.0.0:80
-    3. Для Linux:
-        python3.12 manage.py runserver 0.0.0.0:80
-Если запускать на локальной машине, то ip адрес и порт указывать не нужно
+    1. docker compose up --build
 
 ### Админка
-- Адрес - http://kgu.red-atom.ru/django/admin
+- Адрес - http[s]://Ваш_домен/django/admin
 - Логин - admin
 - Пароль - admin
 
