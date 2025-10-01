@@ -15,7 +15,7 @@
     Следовать появляющимся инструкциям
 
 ### Запуск
-    1. docker compose up --build
+    1. docker compose up
 
 ### Админка
 - Адрес - http[s]://Ваш_домен/django/admin
@@ -29,9 +29,12 @@
 ### API
     GET:
         api/questions_368c231b7c9a3d506cef5a936c83d92f068179d849db19ac2608ba288c7c1c56:
-            Параметр TG_ID.
+            Параметр: TG_ID.
             Не возвращает вопросы в случае, если с прошлого теста не прошло 31 дня, а возвращает 'status': 'There is an active test' со статусом 403
             Возвращает все вопросы (id, название)
+        api/check_nickname_4b4f04bfd927c2a6381a392dcfedcd258e7dfb6e0401f674b13bc4c0db01bcb5:
+            Параметр: Nickname
+            Возвращает exists, если такой псевдоним существует, иначе does not exist
         api/statistics_26a73614cf8dd8f7aeffec47fef1b6201896ece31e52a0c706ad5b7513f7851a:
             Параметр: TG_ID
             Возвращает все результаты тестов [[{time:timestamp}, [результаты]], [...], ...]
@@ -53,18 +56,15 @@
             Пример возврата:
             {
                 "Notification_Day": true,
-                "Notification_Day_Time": "21:12:00",
                 "Notification_Week": true,
-                "Notification_Week_Time": "21:16:37",
                 "Email": "skibididobdobyesyes@ya.ru"
             }
             Notification_Day служит как флаг разрешения на отсылку времени
             Notification_Day_Time указывает время на уведомления (секунды не учитываются при отсылке уведомлений)
     POST:
         api/registration_8d6238094a7742ac22fedb3a180bc590d35f5ea70b8a262cc0bd976349b6181d:
-            Параметры регистрации Name, Surname, Partonymic, Email, Birthday, TG_ID
+            Параметры регистрации Nickname, Email, Birthday, TG_ID
             Служит для получения данных регистрации на сервер
-            Возвращает echo-ответ (Для тестирования)
         api/answers_d4266fadaf6b4d8d557160643324a1d9470a5dc0ad973784f553b6918fc4a619:
             Параметры для обработки ответов {TG_ID:строка, [{id:число, answer:число}, {...}, .., {id:число, answer:число}}
             Служит для получения ответов пользователя
@@ -86,6 +86,6 @@
         api/options_33eafc9c4333dc5ecbe984d3b75cc9a683a3f86f143bb5ed68607947f5c20a19:
             Параметры:
                 Обязательный: TG_ID
-                Необазательные: Notification_Day, Notification_Day_Time, Notification_Week, Notification_Week_Time, Email
+                Необазательные: Notification_Day, Notification_Week, Email
             
             

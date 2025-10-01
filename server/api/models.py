@@ -7,10 +7,9 @@ from django.db import models
 # Create your models here.
 class People(models.Model):
     id = models.AutoField(primary_key=True)
-    Name = models.CharField(max_length=32, null=False, verbose_name=u"Имя")
-    Surname = models.CharField(max_length=32, null=False, verbose_name=u"Фамилия")
-    Patronymic = models.CharField(max_length=32, null=True, verbose_name=u"Отчество")
-    Email = models.CharField(max_length=64, null=True, verbose_name=u"Эл. почта")
+    Nickname = models.CharField(max_length=32, null=False, verbose_name=u"Псевдоним")
+    Email = models.CharField(max_length=64, null=True, blank=True, verbose_name=u"Эл. почта")
+    Work_Experience = models.IntegerField(null=False, verbose_name=u"Стаж")
     Birthday = models.DateField(null=True, blank=True, verbose_name=u"День рождения")
     TG_ID = models.CharField(max_length=64, null=False)
 
@@ -19,7 +18,7 @@ class People(models.Model):
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
-        return f'{self.Surname} {self.Name}'
+        return f'{self.Nickname}'
 
 
 class Test_Burnout(models.Model):
@@ -101,12 +100,8 @@ class Answers_Everyweek_Tasks(models.Model):
 class Options(models.Model):
     People_ID = models.OneToOneField(to=People, on_delete=models.CASCADE, related_name='options',
                                   verbose_name=u"Пользователь", primary_key=True)
-    Notification_Day = models.BooleanField(default=True)
-    Notification_Day_Time = models.TimeField(null=True, blank=True, default=datetime.time(20, 30),
-                                             verbose_name="Уведомления на ежедневные задания")
-    Notification_Week = models.BooleanField(default=True)
-    Notification_Week_Time = models.TimeField(null=True, blank=True, default=datetime.time(19, 0),
-                                             verbose_name="Уведомления на еженедельные задания")
+    Notification_Day = models.BooleanField(default=True, verbose_name=u"Ежедневные уведомления")
+    Notification_Week = models.BooleanField(default=True, verbose_name=u"Еженедельные уведомления")
 
     class Meta:
         verbose_name = 'Настройки пользователя'

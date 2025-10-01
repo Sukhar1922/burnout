@@ -19,10 +19,9 @@ class GETquestionsTest(TestCase):
         self.url_test = f'{API_ADDRESS}/answers_d4266fadaf6b4d8d557160643324a1d9470a5dc0ad973784f553b6918fc4a619'
 
         data = {
-            'Name': 'Фортенайте',
-            'Surname': 'ЫЛЫ',
-            'Patronymic': 'ПаБаДЖи',
+            'Nickname': 'Фортенайте',
             'Email': 'ПабаДЖы@.',
+            'Work_Experience': '1',
             'Birthday': '2000-12-04',
             'TG_ID': '17'
         }
@@ -82,65 +81,60 @@ class POSTregistrationTest(TestCase):
 
     def test_registrate(self):
         data = {
-            'Name': 'Скибиди',
-            'Surname': 'Туалет',
-            'Patronymic': 'Андреевич',
-            'Email': '.@.',
+            'Nickname': 'Фортенайте',
+            'Email': 'ПабаДЖы@.',
+            'Work_Experience': '1',
             'Birthday': '2000-12-04',
-            'TG_ID': '15'
+            'TG_ID': '17'
         }
         data = json.dumps(data)
         response = self.client.post(self.url, data, content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['status'], 'success')
         self.assertEqual(len(People.objects.all()), 1)
 
     def test_registrate_with_empty_fields(self):
         data = {
-            'Name': 'Скибиди',
-            'Surname': 'Туалет',
-            'Patronymic': '',
+            'Nickname': 'ПаБаДЖИ',
             'Email': '',
+            'Work_Experience': '1',
             'Birthday': '2000-12-04',
-            'TG_ID': '15'
+            'TG_ID': '18'
         }
         data = json.dumps(data)
         response = self.client.post(self.url, data, content_type='application/json')
-        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.status_code, 201)
         self.assertEqual(response.json()['status'], 'success')
         self.assertEqual(len(People.objects.all()), 1)
 
     def test_registrate_same(self):
         data = {
-            'Name': 'Скибиди',
-            'Surname': 'Туалет',
-            'Patronymic': 'Андреевич',
-            'Email': '.@.',
+            'Nickname': 'Фортенайте',
+            'Email': '',
+            'Work_Experience': '1',
             'Birthday': '2000-12-04',
-            'TG_ID': '15'
+            'TG_ID': '17'
         }
         data = json.dumps(data)
         response = self.client.post(self.url, data, content_type='application/json')
         response = self.client.post(self.url, data, content_type='application/json')
-        self.assertEqual(response.json()['status'], 'failure')
+        self.assertEqual(response.json()['status'], 'TG_ID or Nickname exists')
         self.assertEqual(len(People.objects.all()), 1)
 
     def test_registrate_second(self):
         data1 = {
-            'Name': 'Скибиди',
-            'Surname': 'Туалет',
-            'Patronymic': 'Андреевич',
-            'Email': '.@.',
-            'Birthday': '2000-12-04',
-            'TG_ID': '15'
-        }
-        data2 = {
-            'Name': 'Фортенайте',
-            'Surname': 'ЫЛЫ',
-            'Patronymic': 'ПаБаДЖи',
-            'Email': 'ПабаДЖы@.',
+            'Nickname': 'Фортенайте',
+            'Email': '',
+            'Work_Experience': '1',
             'Birthday': '2000-12-04',
             'TG_ID': '17'
+        }
+        data2 = {
+            'Nickname': 'ПАБАДЖИ',
+            'Email': '',
+            'Work_Experience': '1',
+            'Birthday': '2000-12-04',
+            'TG_ID': '18'
         }
 
         response = self.client.post(self.url, data1, content_type='application/json')
@@ -151,16 +145,50 @@ class POSTregistrationTest(TestCase):
         self.assertEqual(response.json()['status'], 'success')
         self.assertEqual(len(People.objects.all()), 2)
 
+    def test_registrate_second_with_nickname(self):
+        data = {
+            'Nickname': 'Фортенайте',
+            'Email': 'ПабаДЖы@.',
+            'Work_Experience': '1',
+            'Birthday': '2000-12-04',
+            'TG_ID': '71'
+        }
+
+        response = self.client.post(self.url, data, content_type='application/json')
+        self.assertEqual(response.json()['status'], 'success')
+        self.assertEqual(len(People.objects.all()), 1)
+
+class GETcheckNicknameTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = f'{API_ADDRESS}/check_nickname_4b4f04bfd927c2a6381a392dcfedcd258e7dfb6e0401f674b13bc4c0db01bcb5'
+
+        People.objects.create(
+            Nickname='Фортенайте',
+            Email='ПабаДЖы@.',
+            Work_Experience='1',
+            Birthday='2000-12-04',
+            TG_ID='17'
+        )
+
+    def test_existing_nickname(self):
+        response = self.client.get(self.url, {'Nickname': 'Фортенайте'})
+        self.assertEqual(response.json()['status'], 'exists')
+
+    def test_unextisting_nickname(self):
+        response = self.client.get(self.url, {'Nickname': 'ИЛЫ_ПАБАДЖИ'})
+        self.assertEqual(response.json()['status'], 'does not exist')
+
+
 class POSTanswersTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.url = f'{API_ADDRESS}/answers_d4266fadaf6b4d8d557160643324a1d9470a5dc0ad973784f553b6918fc4a619'
 
         People.objects.create(
-            Name='Фортенайте',
-            Surname='ЫЛЫ',
-            Patronymic='ПаБаДЖи',
+            Nickname='Фортенайте',
             Email='ПабаДЖы@.',
+            Work_Experience='1',
             Birthday='2000-12-04',
             TG_ID='17'
         )
@@ -207,10 +235,9 @@ class GETstatisticsTest(TestCase):
         self.url = f'{API_ADDRESS}/statistics_26a73614cf8dd8f7aeffec47fef1b6201896ece31e52a0c706ad5b7513f7851a'
 
         People.objects.create(
-            Name='Фортенайте',
-            Surname='ЫЛЫ',
-            Patronymic='ПаБаДЖи',
+            Nickname='Фортенайте',
             Email='ПабаДЖы@.',
+            Work_Experience='1',
             Birthday='2000-12-04',
             TG_ID='17'
         )
@@ -252,10 +279,9 @@ class GETcheckPeopleTest(TestCase):
         self.url = f'{API_ADDRESS}/check_people_0bb97721ff2c77036c66e6953a6ea632a424e36e6730fe74df52e3bbe6fcfa66'
 
         People.objects.create(
-            Name='Фортенайте',
-            Surname='ЫЛЫ',
-            Patronymic='ПаБаДЖи',
+            Nickname='Фортенайте',
             Email='ПабаДЖы@.',
+            Work_Experience='1',
             Birthday='2000-12-04',
             TG_ID='17'
         )
@@ -297,10 +323,9 @@ class EvereweekTasksTest(TestCase):
         self.url = f'{API_ADDRESS}/everyweek_tasks_4a73556cb2e8ca050437f3868dccef0cee3bb02b5beb1b8d46882a43e452522e'
 
         People.objects.create(
-            Name='Фортенайте',
-            Surname='ЫЛЫ',
-            Patronymic='ПаБаДЖи',
+            Nickname='Фортенайте',
             Email='ПабаДЖы@.',
+            Work_Experience='1',
             Birthday='2000-12-04',
             TG_ID='17'
         )
@@ -480,10 +505,9 @@ class OptionsTest(TestCase):
         self.url = f'{API_ADDRESS}/options_33eafc9c4333dc5ecbe984d3b75cc9a683a3f86f143bb5ed68607947f5c20a19'
 
         People.objects.create(
-            Name='Фортенайте',
-            Surname='ЫЛЫ',
-            Patronymic='ПаБаДЖи',
+            Nickname='Фортенайте',
             Email='ПабаДЖы@.',
+            Work_Experience='1',
             Birthday='2000-12-04',
             TG_ID='17'
         )
@@ -506,7 +530,7 @@ class OptionsTest(TestCase):
         }
         response = self.client.get(self.url, data, content_type='application/json')
         self.assertEqual(response.status_code, 200)
-        self.assertEqual(len(response.json()), 5)
+        self.assertEqual(len(response.json()), 3)
 
     def test_patch_missing_tg_id(self):
         response = self.client.patch(self.url, {}, content_type="application/json")
@@ -534,9 +558,8 @@ class OptionsTest(TestCase):
         self.assertEqual(person.Email, "NotSkibidi@mail.com")
 
     def test_patch_update_options_field(self):
-        data = {"TG_ID": "17", "Notification_Day": "False", "Notification_Day_Time": "17:00:00"}
+        data = {"TG_ID": "17", "Notification_Day": "False"}
         response = self.client.patch(self.url, data, content_type="application/json")
         self.assertEqual(response.status_code, 200)
         options = People.objects.filter(TG_ID=17).first().options
         self.assertEqual(options.Notification_Day, False)
-        self.assertEqual(options.Notification_Day_Time, datetime.time(17, 0))

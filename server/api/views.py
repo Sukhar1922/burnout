@@ -51,24 +51,35 @@ def GETquestions(request):
 
 def POSTregistration(request):
     if request.method == 'POST':
-        result = {'status': 'success'}
         data = json.loads(request.body)
         TG_ID = data['TG_ID']
-        people = People.objects.filter(TG_ID=TG_ID)
-        if len(people) == 0:
-            newPeople = People.objects.create(
-                Name=data['Name'],
-                Surname=data['Surname'],
-                Patronymic=data['Patronymic'],
-                Email=data['Email'],
-                Birthday=data['Birthday'],
-                TG_ID=TG_ID
-            )
-        else:
-            result['status'] = 'failure'
-        return JsonResponse(result, safe=False)
+        params_exist = \
+            (People.objects.filter(TG_ID=TG_ID).exists() and People.objects.filter(Nickname=data['Nickname']).exists())
+
+        if params_exist:
+            return JsonResponse({'status': 'TG_ID or Nickname exists'}, status=403)
+
+        newPeople = People.objects.create(
+            Nickname=data['Nickname'],
+            Email=data['Email'],
+            Work_Experience=data['Work_Experience'],
+            Birthday=data['Birthday'],
+            TG_ID=TG_ID
+        )
+        return JsonResponse({'status': 'success'}, status=201, safe=False)
 
     return HttpResponseNotAllowed(['POST'])
+
+
+def GETcheckNickname(request):
+    if request.method == 'GET':
+        Nickname = request.GET.get('Nickname')
+        is_exists = People.objects.filter(Nickname=Nickname).exists()
+        if is_exists:
+            return JsonResponse({'status': 'exists'})
+        return JsonResponse({'status': 'does not exist'})
+
+    return HttpResponseNotAllowed(['GET'])
 
 
 def __addResultsToDB(people, hq):
@@ -308,9 +319,7 @@ def OptionsAPI(request):
             return JsonResponse({'status': f'There is no such people with such TG_ID: {TG_ID}'}, status=404)
 
         options = Options.objects.filter(People_ID=people).values('Notification_Day',
-                                                                 'Notification_Day_Time',
-                                                                 'Notification_Week',
-                                                                 'Notification_Week_Time').first()
+                                                                 'Notification_Week',).first()
         options['Email'] = people.Email
         return JsonResponse(options, status=200, safe=False)
 

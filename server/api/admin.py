@@ -79,8 +79,8 @@ class TestBurnoutInline(admin.TabularInline):
 @admin.register(People)
 class PeopleAdmin(admin.ModelAdmin):
     # list_display = ('Surname', 'Name', 'Email', 'TG_ID')
-    search_fields = ('Surname', 'Name', 'Patronymic')
-    search_help_text = 'Для поиска введите что-то из следующего: Фамилия, Имя, Отчество пользователя'
+    search_fields = ('Nickname',)
+    search_help_text = 'Для поиска следующее: Псевдоним'
     inlines = [TestBurnoutInline]
     actions = None
 
@@ -139,8 +139,8 @@ class AnswersEveryweekTasksInline(admin.TabularInline):
 class TestBurnoutAdmin(admin.ModelAdmin):
     list_display = ('People_ID', 'Date_Record', 'Summary_Value')
     list_filter = ('Date_Record', 'People_ID')
-    search_fields = ('People_ID__Surname', 'People_ID__Name', 'People_ID__Patronymic')
-    search_help_text = 'Для поиска введите что-то из следующего: Фамилия, Имя, Отчество пользователя'
+    search_fields = ('People_ID__Nickname', )
+    search_help_text = 'Для поиска введите: Псевдоним'
     inlines = [AnswersEveryweekTasksInline]
     # fields = (
     #     'Voltage_symptomSum',
