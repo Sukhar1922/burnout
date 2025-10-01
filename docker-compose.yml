@@ -2,7 +2,9 @@ services:
   web:
     build: .
     container_name: django_app
-    network_mode: "host"
+    depends_on:
+      db:
+        condition: service_healthy
     command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:82"
     volumes:
       - ./server:/app/server
@@ -10,16 +12,35 @@ services:
       - "82:82"
     env_file:
       - ./server/.env
-    depends_on: [ ]
 
   notification_worker:
     build:
       context: .
       dockerfile: Dockerfile.worker
-    network_mode: "host"
     container_name: notification_worker
+    depends_on:
+      db:
+        condition: service_healthy
     command: python manage.py notify_worker
     volumes:
       - ./server:/app_worker
     env_file:
       - ./server/.env
+
+  db:
+    image: postgres:17
+    restart: always
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:
