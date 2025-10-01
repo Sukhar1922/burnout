@@ -7,7 +7,7 @@
       "daily_health_check": "Время оценить самочувствие и выполнить задание!"
     },
     "timers": {
-      "notification_sleep": 30
+      "notification_sleep": 86400
     }
   }
 }

@@ -50,6 +50,21 @@ class POSTregistrationTest(TestCase):
         self.assertEqual(response.json()['status'], 'success')
         self.assertEqual(len(People.objects.all()), 1)
 
+    def test_registrate_with_empty_fields(self):
+        data = {
+            'Name': 'Скибиди',
+            'Surname': 'Туалет',
+            'Patronymic': '',
+            'Email': '',
+            'Birthday': '2000-12-04',
+            'TG_ID': '15'
+        }
+        data = json.dumps(data)
+        response = self.client.post(self.url, data, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['status'], 'success')
+        self.assertEqual(len(People.objects.all()), 1)
+
     def test_registrate_same(self):
         data = {
             'Name': 'Скибиди',
@@ -273,7 +288,7 @@ class EvereweekTasksTest(TestCase):
         data = {
             'TG_ID': '17'
         }
-        with freeze_time("2025-09-01"):
+        with freeze_time("2025-10-01"):
             response = self.client.get(self.url, data)
             self.assertEqual(response.status_code, 410)
             self.assertEqual(response.json()['status'], 'The test was a long time ago')
@@ -318,7 +333,7 @@ class EvereweekTasksTest(TestCase):
             'TG_ID': '17',
             'TaskID': '1',
         }
-        with freeze_time("2025-09-01"):
+        with freeze_time("2025-10-01"):
             response = self.client.post(self.url, data, content_type='application/json')
             self.assertEqual(response.status_code, 410)
             self.assertEqual(response.json()['status'], 'The test was a long time ago')

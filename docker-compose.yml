@@ -2,30 +2,24 @@ services:
   web:
     build: .
     container_name: django_app
-    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    network_mode: "host"
+    command: sh -c "python manage.py migrate && python manage.py runserver 0.0.0.0:82"
     volumes:
       - ./server:/app/server
     ports:
-      - "82:8000"
+      - "82:82"
     env_file:
-      - /server/.env
+      - ./server/.env
     depends_on: [ ]
-    networks:
-      - django_net
 
   notification_worker:
     build:
       context: .
       dockerfile: Dockerfile.worker
+    network_mode: "host"
     container_name: notification_worker
     command: python manage.py notify_worker
     volumes:
       - ./server:/app_worker
     env_file:
       - ./server/.env
-    networks:
-      - django_net
-
-networks:
-  django_net:
-    driver: bridge

@@ -10,7 +10,7 @@ class People(models.Model):
     Name = models.CharField(max_length=32, null=False, verbose_name=u"Имя")
     Surname = models.CharField(max_length=32, null=False, verbose_name=u"Фамилия")
     Patronymic = models.CharField(max_length=32, null=True, verbose_name=u"Отчество")
-    Email = models.CharField(max_length=64, null=False, verbose_name=u"Эл. почта")
+    Email = models.CharField(max_length=64, null=True, verbose_name=u"Эл. почта")
     Birthday = models.DateField(null=True, blank=True, verbose_name=u"День рождения")
     TG_ID = models.CharField(max_length=64, null=False)
 
