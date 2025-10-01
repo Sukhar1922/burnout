@@ -3,6 +3,7 @@ from django.http import JsonResponse, HttpResponseNotAllowed
 from django.db import connection
 from django.core.cache import cache
 from django.db import transaction
+from django.utils import timezone
 
 from .models import Questions, Everyweek_Tasks, Answers_Everyweek_Tasks, Options
 from .models import People
@@ -24,6 +25,22 @@ def test(request):
 
 def GETquestions(request):
     if request.method == 'GET':
+        TG_ID = request.GET.get('TG_ID')
+        if TG_ID is None:
+            return JsonResponse({'status': 'Needs TG_ID field'}, status=401, safe=False)
+        people = People.objects.filter(TG_ID=TG_ID).first()
+        if people is None:
+            return JsonResponse({'status': 'There is no user with this TG_ID'}, status=401, safe=False)
+
+        month_ago = timezone.localtime() - timedelta(days=31)
+        active_test_exists = Test_Burnout.objects.filter(
+                Date_Record__gte=month_ago
+            ).select_related("People_ID").exists()
+
+        if active_test_exists:
+            return JsonResponse({'status': 'There is an active test'}, status=403, safe=False)
+
+        active_burnout_test_exists = Test_Burnout.objects.filter()
         data = cache.get('questions_cache')
         # print(f'Кэш {data}')
         if data is None:

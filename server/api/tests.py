@@ -14,17 +14,61 @@ class GETquestionsTest(TestCase):
     def setUp(self):
         self.client = Client()
         self.url = f'{API_ADDRESS}/questions_368c231b7c9a3d506cef5a936c83d92f068179d849db19ac2608ba288c7c1c56'
+        self.url_reg = f'{API_ADDRESS}/registration_8d6238094a7742ac22fedb3a180bc590d35f5ea70b8a262cc0bd976349b6181d'
+        self.url_test = f'{API_ADDRESS}/answers_d4266fadaf6b4d8d557160643324a1d9470a5dc0ad973784f553b6918fc4a619'
+
+        data = {
+            'Name': 'Фортенайте',
+            'Surname': 'ЫЛЫ',
+            'Patronymic': 'ПаБаДЖи',
+            'Email': 'ПабаДЖы@.',
+            'Birthday': '2000-12-04',
+            'TG_ID': '17'
+        }
+
+        self.client.post(self.url_reg, data, content_type='application/json')
+
 
     def test_method_not_allowed(self):
         response = self.client.post(self.url)
         self.assertEqual(response.status_code, 405)
 
-    def test_get_data(self):
+    def test_get_data_without_TG_ID(self):
         response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_data_with_invalid_TG_ID(self):
+        response = self.client.get(self.url, {'TG_ID': '71'})
+        self.assertEqual(response.status_code, 401)
+
+    def test_get_data(self):
+        response = self.client.get(self.url, {'TG_ID': '17'})
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 84)
         self.assertEqual(response.json()[0]['Name_Question'], 'Организационные недостатки на работе постоянно заставляют нервничать, переживать, напрягаться.')
         self.assertEqual(len(response.json()[1]), 2)
+
+    def test_get_data_with_active_test(self):
+        json_path = os.path.join(BASE_DIR, "Utils/answers.json")
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+            data['TG_ID'] = '17'
+            self.client.post(self.url_test, data, content_type='application/json')
+
+        response = self.client.get(self.url, {'TG_ID': '17'})
+        self.assertEqual(response.status_code, 403)
+
+    @freeze_time("2025-08-01")
+    def test_get_data_without_active_test(self):
+        json_path = os.path.join(BASE_DIR, "Utils/answers.json")
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+            data['TG_ID'] = '17'
+            self.client.post(self.url_test, data, content_type='application/json')
+
+        with freeze_time("2025-09-15"):
+            response = self.client.get(self.url, {'TG_ID': '17'})
+            self.assertEqual(response.status_code, 200)
 
 class POSTregistrationTest(TestCase):
     def setUp(self):

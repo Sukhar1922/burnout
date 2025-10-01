@@ -38,7 +38,8 @@
 ### API
     GET:
         api/questions_368c231b7c9a3d506cef5a936c83d92f068179d849db19ac2608ba288c7c1c56:
-            Нет параметров.
+            Параметр TG_ID.
+            Не возвращает вопросы в случае, если с прошлого теста не прошло 31 дня, а возвращает 'status': 'There is an active test' со статусом 403
             Возвращает все вопросы (id, название)
         api/statistics_26a73614cf8dd8f7aeffec47fef1b6201896ece31e52a0c706ad5b7513f7851a:
             Параметр: TG_ID
