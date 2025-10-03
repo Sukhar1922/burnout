@@ -66,6 +66,9 @@
             Нужен для того, чтобы узнать, проходил ли пользователь сегодня тест и можно ли отправить тест
             Возврашает {"Can I send the answer": "True"}, если можно отправить тест, 
             иначе {"Can I send the answer": "False"} если нельзя, т.к. тест сегодня был отправлен
+        api/statistics_everyday_answers_c23820a3029e86a952fb596d5ac69ec7f5306625732ada45b7c09f926237728a:
+            Параметр: TG_ID
+            Возвращает все результаты ежедневных тестов [[{time:timestamp}, [результаты]], [...], ...]
     POST:
         api/registration_8d6238094a7742ac22fedb3a180bc590d35f5ea70b8a262cc0bd976349b6181d:
             Параметры регистрации Nickname, Email, Birthday, TG_ID
