@@ -690,3 +690,43 @@ class EverydayAnswersTest(TestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn("conditions must be in [1, 3]", response.json()["status"])
 
+
+class EverydayAnswersStatisticsTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = f'{API_ADDRESS}/statistics_everyday_answers_c23820a3029e86a952fb596d5ac69ec7f5306625732ada45b7c09f926237728a'
+
+        self.person = People.objects.create(
+            Nickname='Фортенайте',
+            Email='ПабаДЖы@.',
+            Work_Experience='1',
+            Birthday='2000-12-04',
+            TG_ID='17'
+        )
+
+        Answers_Everyday.objects.create(
+            People_ID=self.person,
+            Emotional_Condition=3,
+            Physical_Condition=3,
+            Burnout=3,
+        )
+
+    def test_method_not_allowed(self):
+        response = self.client.post(self.url)
+        self.assertEqual(response.status_code, 405)
+
+    def test_statistics_empty_TG_ID(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()['status'], 'Needs TG_ID field')
+
+    def test_statistics_invalid_TG_ID(self):
+        response = self.client.get(self.url, {'TG_ID': '71'})
+        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.json()['status'], f'There is no person with this 71 TG_ID')
+
+    def test_statistics_valid_TG_ID(self):
+        response = self.client.get(self.url, {'TG_ID': '17'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.json()), 1)
+

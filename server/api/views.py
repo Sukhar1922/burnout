@@ -425,3 +425,34 @@ def sendEveryDayAnswers(request):
             return JsonResponse({'status': f'[DjangoError]: {e}'}, status=500)
 
     return HttpResponseNotAllowed(['GET', 'POST'])
+
+
+def GETeverydayStatistics(request):
+    if request.method == 'GET':
+        TG_ID = request.GET.get('TG_ID')
+        if TG_ID is None:
+            return JsonResponse({'status': 'Needs TG_ID field'}, status=401, safe=False)
+        person = People.objects.filter(TG_ID=TG_ID).first()
+        results = []
+
+        if person is None:
+            return JsonResponse({'status': f'There is no person with this {TG_ID} TG_ID'}, status=404, safe=False)
+
+        answers_everyday = Answers_Everyday.objects.filter(People_ID=person)
+
+        for answer_everyday in answers_everyday:
+            conditions = [
+                answer_everyday.Emotional_Condition,
+                answer_everyday.Physical_Condition,
+                answer_everyday.Burnout,
+            ]
+
+            node = [
+                {'time': int(answer_everyday.Created_at.timestamp())},
+                conditions
+            ]
+
+            results.append(node)
+        return JsonResponse(results, status=200, safe=False)
+
+    return HttpResponseNotAllowed(['GET'])
