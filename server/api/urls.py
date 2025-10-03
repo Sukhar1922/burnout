@@ -30,4 +30,5 @@ urlpatterns = [
     path('everyweek_tasks_4a73556cb2e8ca050437f3868dccef0cee3bb02b5beb1b8d46882a43e452522e', views.EvereweekTasks),
     # path('test_tg', views.TestTG),
     path('options_33eafc9c4333dc5ecbe984d3b75cc9a683a3f86f143bb5ed68607947f5c20a19', views.OptionsAPI),
+    path('everyday_answers_7f5831436bc60af14dd1d0c9a4d09f73092a2560d9d1e6d28eba22e6d9effce8', views.sendEveryDayAnswers),
 ]

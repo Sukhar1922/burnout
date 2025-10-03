@@ -563,3 +563,130 @@ class OptionsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         options = People.objects.filter(TG_ID=17).first().options
         self.assertEqual(options.Notification_Day, False)
+
+
+class EverydayAnswersTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = f'{API_ADDRESS}/everyday_answers_7f5831436bc60af14dd1d0c9a4d09f73092a2560d9d1e6d28eba22e6d9effce8'
+
+        self.person = People.objects.create(
+            Nickname='Фортенайте',
+            Email='ПабаДЖы@.',
+            Work_Experience='1',
+            Birthday='2000-12-04',
+            TG_ID='17'
+        )
+
+    def test_get_can_i_send_test_true(self):
+        response = self.client.get(self.url, {'TG_ID': '17'}, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['Can I send the answer'], 'True')
+
+    def test_get_can_i_send_test_false(self):
+        Answers_Everyday.objects.create(
+            People_ID=self.person,
+            Emotional_Condition=1,
+            Physical_Condition=1,
+            Burnout=1,
+        )
+
+        response = self.client.get(self.url, {'TG_ID': '17'}, content_type='application/json')
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json()['Can I send the answer'], 'False')
+
+    @freeze_time("2025-08-01")
+    def test_get_can_i_send_test_true_after_a_day(self):
+        Answers_Everyday.objects.create(
+            People_ID=self.person,
+            Emotional_Condition=1,
+            Physical_Condition=1,
+            Burnout=1,
+        )
+
+        with freeze_time("2025-08-02"):
+            response = self.client.get(self.url, {'TG_ID': '17'}, content_type='application/json')
+            self.assertEqual(response.status_code, 200)
+            self.assertEqual(response.json()['Can I send the answer'], 'True')
+
+    def test_post_success(self):
+        data = {
+            "TG_ID": "17",
+            "Answers": {
+                "Emotional_Condition": 2,
+                "Physical_Condition": 3,
+                "Burnout": 1
+            }
+        }
+        response = self.client.post(self.url, data=json.dumps(data), content_type="application/json")
+
+        self.assertEqual(response.json()["status"], "added")
+        self.assertEqual(response.status_code, 201)
+
+        self.assertEqual(Answers_Everyday.objects.count(), 1)
+
+    def test_post_person_not_found(self):
+        data = {
+            "TG_ID": "999",
+            "Answers": {
+                "Emotional_Condition": 2,
+                "Physical_Condition": 3,
+                "Burnout": 1
+            }
+        }
+        response = self.client.post(self.url, data=json.dumps(data), content_type="application/json")
+
+        self.assertEqual(response.status_code, 404)
+        self.assertIn("There is no such people", response.json()["status"])
+
+    @freeze_time("2025-08-01 10:00:00")
+    def test_post_already_answered_today(self):
+        Answers_Everyday.objects.create(
+            People_ID=self.person,
+            Emotional_Condition=2,
+            Physical_Condition=2,
+            Burnout=2,
+        )
+
+        data = {
+            "TG_ID": "17",
+            "Answers": {
+                "Emotional_Condition": 1,
+                "Physical_Condition": 1,
+                "Burnout": 1
+            }
+        }
+        with freeze_time("2025-08-01 11:00:00"):
+            response = self.client.post(self.url, data=json.dumps(data), content_type="application/json")
+
+            self.assertEqual(response.status_code, 403)
+            self.assertEqual(response.json()["status"], "There was today's answer")
+
+    def test_post_missing_fields(self):
+        data = {
+            "TG_ID": "17",
+            "Answers": {
+                "Emotional_Condition": 1,
+                "Physical_Condition": 2
+                # There is no Burnout
+            }
+        }
+        response = self.client.post(self.url, data=json.dumps(data), content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("are required", response.json()["status"])
+
+    def test_post_invalid_values(self):
+        data = {
+            "TG_ID": "17",
+            "Answers": {
+                "Emotional_Condition": 5,
+                "Physical_Condition": 0,
+                "Burnout": -1
+            }
+        }
+        response = self.client.post(self.url, data=json.dumps(data), content_type="application/json")
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("conditions must be in [1, 3]", response.json()["status"])
+

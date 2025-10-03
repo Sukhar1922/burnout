@@ -2,6 +2,7 @@ import datetime
 
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 
 # Create your models here.
@@ -132,3 +133,28 @@ class NotificationEvent(models.Model):
         indexes = [
             models.Index(fields=["Created_at"]),
         ]
+
+
+class Answers_Everyday(models.Model):
+    id = models.AutoField(primary_key=True)
+    People_ID = models.ForeignKey(People, on_delete=models.CASCADE, related_name="Answers_Everyday")
+    Emotional_Condition = models.IntegerField(validators=[
+        MaxValueValidator(3),
+        MinValueValidator(1)
+    ], verbose_name="Эмоциональное состояние", )
+    Physical_Condition = models.IntegerField(validators=[
+        MaxValueValidator(3),
+        MinValueValidator(1)
+    ], verbose_name="Физическое состояние", )
+    Burnout = models.IntegerField(validators=[
+        MaxValueValidator(3),
+        MinValueValidator(1)
+    ], verbose_name="Выгорание", )
+    Created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'Ежедневный тест {self.People_ID} от {self.Created_at}'
+
+    class Meta:
+        verbose_name = "Ежедневное задание"
+        verbose_name_plural = "Ежедневные задания"

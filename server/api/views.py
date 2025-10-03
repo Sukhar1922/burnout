@@ -5,7 +5,7 @@ from django.core.cache import cache
 from django.db import transaction
 from django.utils import timezone
 
-from .models import Questions, Everyweek_Tasks, Answers_Everyweek_Tasks, Options
+from .models import Questions, Everyweek_Tasks, Answers_Everyweek_Tasks, Options, Answers_Everyday
 from .models import People
 from .models import Test_Burnout
 
@@ -371,3 +371,56 @@ def OptionsAPI(request):
 
         return JsonResponse({'status': 'Updated'}, status=200)
     return HttpResponseNotAllowed(['GET', 'PATCH'])
+
+
+def sendEveryDayAnswers(request):
+    if request.method == "GET":
+        TG_ID = request.GET.get('TG_ID')
+        people = People.objects.filter(TG_ID=TG_ID).first()
+        if people is None:
+            return JsonResponse({'status': f'There is no such people with such TG_ID: {TG_ID}'}, status=404)
+
+        today = timezone.now().date()
+        # today = date.today()
+        was_today_answer = Answers_Everyday.objects.filter(Created_at__date=today, People_ID=people).exists()
+        if was_today_answer:
+            return JsonResponse({'Can I send the answer': 'False'}, status=200)
+        return JsonResponse({'Can I send the answer': 'True'}, status=200)
+
+    elif request.method == "POST":
+        data = json.loads(request.body)
+        TG_ID = data['TG_ID']
+        answers = data['Answers']
+        people = People.objects.filter(TG_ID=TG_ID).first()
+        if people is None:
+            return JsonResponse({'status': f'There is no such people with such TG_ID: {TG_ID}'}, status=404)
+
+        today = timezone.localtime().replace(hour=0, minute=0, second=0, microsecond=0)
+        was_today_answer = Answers_Everyday.objects.filter(Created_at__gt=today, People_ID=people).exists()
+        if was_today_answer:
+            return JsonResponse({'status': 'There was today\'s answer'}, status=403)
+
+        if not ('Emotional_Condition' in answers
+                and 'Physical_Condition' in answers
+                and 'Burnout' in answers):
+            return JsonResponse({'status': 'Emotional_Condition, Physical_Condition, Burnout are required'}, status=400)
+
+        try:
+            # сделать проверку на введённые данные в [1, 3]
+            conditions = ['Emotional_Condition', 'Physical_Condition', 'Burnout']
+            for condition in conditions:
+                if not (1 <= answers[condition] <= 3):
+                    return JsonResponse({'status': 'conditions must be in [1, 3]'}, status=400)
+
+            Answers_Everyday.objects.create(
+                People_ID=people,
+                Emotional_Condition=answers['Emotional_Condition'],
+                Physical_Condition=answers['Physical_Condition'],
+                Burnout=answers['Burnout'],
+            )
+
+            return JsonResponse({'status': 'added'}, status=201)
+        except Exception as e:
+            return JsonResponse({'status': f'[DjangoError]: {e}'}, status=500)
+
+    return HttpResponseNotAllowed(['GET', 'POST'])
