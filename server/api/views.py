@@ -31,8 +31,9 @@ def GETquestions(request):
 
         month_ago = timezone.localtime() - timedelta(days=31)
         active_test_exists = Test_Burnout.objects.filter(
-                Date_Record__gte=month_ago
-            ).select_related("People_ID").exists()
+                Date_Record__gte=month_ago,
+                People_ID=people,
+            ).exists()
 
         if active_test_exists:
             return JsonResponse({'status': 'There is an active test'}, status=403, safe=False)
