@@ -32,4 +32,5 @@ urlpatterns = [
     path('options_33eafc9c4333dc5ecbe984d3b75cc9a683a3f86f143bb5ed68607947f5c20a19', views.OptionsAPI),
     path('everyday_answers_7f5831436bc60af14dd1d0c9a4d09f73092a2560d9d1e6d28eba22e6d9effce8', views.sendEveryDayAnswers),
     path('statistics_everyday_answers_c23820a3029e86a952fb596d5ac69ec7f5306625732ada45b7c09f926237728a', views.GETeverydayStatistics),
+    path('statistics_everyweek_answers_ecc64aa6711cc716673a5a0dee90cb1ab9c5f5ac032087b50ef96b8ce12a05e9', views.GETeveryweekStatistics),
 ]

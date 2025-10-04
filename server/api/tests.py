@@ -730,3 +730,62 @@ class EverydayAnswersStatisticsTest(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.json()), 1)
 
+
+class EveryweekAnswersStatisticsTest(TestCase):
+    def setUp(self):
+        self.client = Client()
+        self.url = f'{API_ADDRESS}/statistics_everyweek_answers_ecc64aa6711cc716673a5a0dee90cb1ab9c5f5ac032087b50ef96b8ce12a05e9'
+        self.url_test = f'{API_ADDRESS}/answers_d4266fadaf6b4d8d557160643324a1d9470a5dc0ad973784f553b6918fc4a619'
+
+        self.person = People.objects.create(
+            Nickname='Фортенайте',
+            Email='ПабаДЖы@.',
+            Work_Experience='1',
+            Birthday='2000-12-04',
+            TG_ID='17'
+        )
+
+        json_path = JSON_ADDRESS
+        with open(json_path, 'r') as f:
+            data = json.load(f)
+            data['TG_ID'] = '17'
+            self.client.post(self.url_test, data, content_type='application/json')
+
+        test = Test_Burnout.objects.filter(People_ID=self.person).first()
+        task = Everyweek_Tasks.objects.all().first()
+
+        Answers_Everyweek_Tasks.objects.create(
+            TestID=test,
+            TaskID=task,
+        )
+
+    def test_get_without_tg_id(self):
+        response = self.client.get(self.url)
+        self.assertEqual(response.status_code, 401)
+        self.assertEqual(response.json()['status'], 'Needs TG_ID field')
+
+    def test_get_with_invalid_tg_id(self):
+        response = self.client.get(self.url, {'TG_ID': '71'})
+        self.assertEqual(response.status_code, 404)
+        self.assertIn('There is no person with this', response.json()['status'])
+
+    def test_get_with_valid_tg_id(self):
+        response = self.client.get(self.url, {'TG_ID': '17'})
+        self.assertEqual(response.status_code, 200)
+
+        data = response.json()
+        self.assertIsInstance(data, list)
+        self.assertGreater(len(data), 0)
+
+    def test_get_with_valid_tg_id_no_answers(self):
+        new_person = People.objects.create(
+            Nickname='Без ответов',
+            Email='none@none.com',
+            Work_Experience='0',
+            Birthday='2001-01-01',
+            TG_ID='100'
+        )
+
+        response = self.client.get(self.url, {'TG_ID': '100'})
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), [])

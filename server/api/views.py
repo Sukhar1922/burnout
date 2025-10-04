@@ -152,7 +152,6 @@ def POSTanswers(request):
 
 def GETstatistics(request):
     if request.method == 'GET':
-        t1 = time.time()
         TG_ID = request.GET.get('TG_ID')
         people = People.objects.filter(TG_ID=TG_ID)
         result = []
@@ -190,8 +189,6 @@ def GETstatistics(request):
             ]
 
             result.append(node)
-        runtime = time.time() - t1
-        # print(f'runtime {runtime:.5f} sec')
         return JsonResponse(result, safe=False)
 
     return HttpResponseNotAllowed(['GET'])
@@ -455,4 +452,37 @@ def GETeverydayStatistics(request):
             results.append(node)
         return JsonResponse(results, status=200, safe=False)
 
+    return HttpResponseNotAllowed(['GET'])
+
+def GETeveryweekStatistics(request):
+    if request.method == 'GET':
+        TG_ID = request.GET.get('TG_ID')
+        if TG_ID is None:
+            return JsonResponse({'status': 'Needs TG_ID field'}, status=401, safe=False)
+        person = People.objects.filter(TG_ID=TG_ID).first()
+        results = []
+
+        if person is None:
+            return JsonResponse({'status': f'There is no person with this {TG_ID} TG_ID'}, status=404, safe=False)
+
+        tests_burnout = Test_Burnout.objects.filter(People_ID=person)
+        for test_burnout in tests_burnout:
+            answers_everyweek = Answers_Everyweek_Tasks.objects.filter(TestID=test_burnout) \
+                    .select_related("TaskID")
+
+            for answer_everyweek in answers_everyweek:
+                answers = [
+                    answer_everyweek.Stars,
+                    answer_everyweek.Comments,
+                    answer_everyweek.TaskID.Name,
+                    answer_everyweek.TaskID.Phase,
+                ]
+
+                node = [
+                    {'time': int(answer_everyweek.Date_Record.timestamp())},
+                    answers
+                ]
+
+                results.append(node)
+        return JsonResponse(results, status=200, safe=False)
     return HttpResponseNotAllowed(['GET'])
